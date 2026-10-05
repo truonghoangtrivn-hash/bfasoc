@@ -313,11 +313,16 @@
             // Đẩy dữ liệu lên Đám mây
             dbRef.child(id).set(newNote);
             
+            // Đặt lại các trường nhập liệu
             document.getElementById('flight-number').value = '';
             document.getElementById('flight-time-hour').value = '00';
             document.getElementById('flight-time-minute').value = '00';
             document.getElementById('note-content').value = '';
             checkboxes.forEach(cb => cb.checked = false);
+            
+            // Tự động trả Ngày bay về ngày hiện tại của hệ thống
+            const currentToday = new Date().toLocaleDateString('en-CA');
+            document.getElementById('flight-date').value = currentToday;
         }
 
         function renderNotes() {
