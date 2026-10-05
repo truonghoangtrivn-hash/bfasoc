@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Briefing Chuyến Bay</title>
+    <!-- TẢI THƯ VIỆN ĐÁM MÂY FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
     <style>
         :root {
             --primary-color: #00456b;
@@ -64,7 +68,6 @@
         }
         .btn-main:hover { background-color: #003350; }
 
-        /* --- CSS CHO CÁC THẺ BRIEFING --- */
         .note-item {
             background: var(--bg-color);
             border-left: 5px solid var(--primary-color);
@@ -75,30 +78,17 @@
         .note-options { font-size: 12px; color: #d9534f; font-weight: bold; margin-bottom: 5px; }
         .note-content { font-size: 14px; margin-bottom: 10px; line-height: 1.4; white-space: pre-line; }
         
-        /* CSS CHO PHẦN GHI CHÚ PHỤ */
         .sub-note {
-            background-color: #00456b;
-            color: #ffffff;
-            padding: 10px 12px;
-            margin-bottom: 12px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: bold;
-            white-space: pre-line;
-            border-left: 4px solid #ffc107;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            background-color: #00456b; color: #ffffff; padding: 10px 12px; margin-bottom: 12px;
+            border-radius: 6px; font-size: 14px; font-weight: bold; white-space: pre-line;
+            border-left: 4px solid #ffc107; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* Chế độ Highlight cảnh báo */
         .note-item.highlight {
-            border-left: 8px solid #dc3545;
-            background-color: #ffe0e0;
-            animation: pulse-danger 1.5s infinite;
+            border-left: 8px solid #dc3545; background-color: #ffe0e0; animation: pulse-danger 1.5s infinite;
         }
         @keyframes pulse-danger {
-            0% { box-shadow: 0 0 0 0 rgba(220,53,69, 0.4); }
-            70% { box-shadow: 0 0 0 8px rgba(220,53,69, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(220,53,69, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(220,53,69, 0.4); } 70% { box-shadow: 0 0 0 8px rgba(220,53,69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220,53,69, 0); }
         }
 
         .warning-icon { display: none; margin-right: 5px; font-size: 18px; }
@@ -108,20 +98,22 @@
         .note-item.done { opacity: 0.5; border-left-color: #999; background: #eef1f4; animation: none; box-shadow: none; }
         .note-item.done .note-header, .note-item.done .note-options { color: #666; text-decoration: line-through; }
         
-        /* Nút hành động */
         .note-actions { display: flex; gap: 8px; flex-wrap: wrap; }
         .btn-small { padding: 6px 12px; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; color: white; }
         .btn-done { background-color: #28a745; }
         .btn-restore { background-color: #ffc107; color: #000; }
         .btn-note-edit { background-color: #17a2b8; }
         .btn-delete { background-color: #dc3545; }
+        
+        /* Báo trạng thái kết nối mạng */
+        #network-status { text-align: center; font-size: 12px; margin-bottom: 10px; color: #28a745; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="container">
         <div id="clock">Đang tải đồng hồ...</div>
+        <div id="network-status">Đang kết nối cơ sở dữ liệu...</div>
         
-        <!-- Khung nhập liệu -->
         <div class="card">
             <h3>Tạo Briefing Mới</h3>
             
@@ -169,7 +161,6 @@
             <button class="btn-main" onclick="saveNote()">Lưu Briefing</button>
         </div>
 
-        <!-- Khung danh sách -->
         <div class="card">
             <h3>Danh sách công việc</h3>
             <div class="form-group">
@@ -181,6 +172,39 @@
     </div>
 
     <script>
+        // ==========================================
+        // CẤU HÌNH ĐÁM MÂY FIREBASE
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyB-FBkdSl8RITRApb9bLCO-icuEVq3KjAc",
+            authDomain: "bfasoc-52e00.firebaseapp.com",
+            databaseURL: "https://bfasoc-52e00-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "bfasoc-52e00",
+            storageBucket: "bfasoc-52e00.firebasestorage.app",
+            messagingSenderId: "506938701933",
+            appId: "1:506938701933:web:07892aa17f9eceb9f3e764"
+        };
+        // ==========================================
+
+        // Khởi tạo Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const dbRef = database.ref('briefingData');
+
+        let notes = []; 
+
+        // Lắng nghe dữ liệu thay đổi theo thời gian thực (Real-time sync)
+        dbRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            notes = data ? Object.values(data) : [];
+            document.getElementById('network-status').innerText = "🟢 Trực tuyến - Dữ liệu đã đồng bộ";
+            renderNotes();
+        }, (error) => {
+            document.getElementById('network-status').innerText = "🔴 Lỗi kết nối mạng";
+            document.getElementById('network-status').style.color = "#dc3545";
+        });
+
+
         // TẠO DANH SÁCH 24 GIỜ
         const hourSelect = document.getElementById('flight-time-hour');
         for (let i = 0; i < 24; i++) {
@@ -217,9 +241,6 @@
             "VN306": "00:20", "VN350": "00:35", "VN516": "00:35", "VN422": "01:10"
         };
 
-        let notes = JSON.parse(localStorage.getItem('flightNotes')) || [];
-
-        // HÀM TÍNH NGÀY CA TRỰC: Nếu giờ <= 02:00, nó thuộc ca trực của ngày hôm trước
         function getShiftDate(dateStr, timeStr) {
             if (timeStr <= "02:00") {
                 const parts = dateStr.split('-');
@@ -233,13 +254,10 @@
             return dateStr;
         }
 
-        // HÀM TÍNH SỐ PHÚT TRONG CA: Ép các giờ xuyên đêm cộng thêm 24 tiếng để nằm ở cuối danh sách
         function getShiftMinutes(timeStr) {
             const [h, m] = timeStr.split(':').map(Number);
             let mins = h * 60 + m;
-            if (timeStr <= "02:00") {
-                mins += 24 * 60;
-            }
+            if (timeStr <= "02:00") mins += 24 * 60;
             return mins;
         }
 
@@ -278,7 +296,6 @@
             
             if (!flightNo || !date) { alert("Vui lòng nhập đầy đủ SHCB và Ngày bay!"); return; }
 
-            // --- KIỂM TRA ETD TRONG QUÁ KHỨ ---
             const now = new Date();
             const etdDateTime = new Date(`${date}T${time}:00`);
             
@@ -286,26 +303,21 @@
                 alert("ETD đã qua! Không thể tạo briefing cho chuyến bay trong quá khứ.");
                 return;
             }
-            // ---------------------------------
 
             const checkboxes = document.querySelectorAll('.take-care-option:checked');
             const options = Array.from(checkboxes).map(cb => cb.value);
+            const id = Date.now().toString();
 
-            const newNote = {
-                id: Date.now().toString(),
-                flightNo, time, date, content, options, subNote: "", isDone: false
-            };
+            const newNote = { id, flightNo, time, date, content, options, subNote: "", isDone: false };
 
-            notes.push(newNote);
-            localStorage.setItem('flightNotes', JSON.stringify(notes));
+            // Đẩy dữ liệu lên Đám mây
+            dbRef.child(id).set(newNote);
             
             document.getElementById('flight-number').value = '';
             document.getElementById('flight-time-hour').value = '00';
             document.getElementById('flight-time-minute').value = '00';
             document.getElementById('note-content').value = '';
             checkboxes.forEach(cb => cb.checked = false);
-            
-            renderNotes();
         }
 
         function renderNotes() {
@@ -313,13 +325,11 @@
             const filterDate = document.getElementById('filter-date').value;
             listDiv.innerHTML = '';
 
-            // Lọc theo Ngày Ca Trực
             let filteredNotes = notes.filter(n => {
                 const shiftDate = getShiftDate(n.date, n.time);
                 return shiftDate === filterDate;
             });
             
-            // Sắp xếp theo số phút của Ca Trực
             filteredNotes.sort((a, b) => getShiftMinutes(a.time) - getShiftMinutes(b.time));
 
             const activeNotes = filteredNotes.filter(n => !n.isDone);
@@ -336,13 +346,15 @@
                 noteEl.className = `note-item ${note.isDone ? 'done' : ''}`;
                 noteEl.id = `note-${note.id}`;
                 noteEl.dataset.time = note.time;
-                noteEl.dataset.options = JSON.stringify(note.options);
+                noteEl.dataset.options = JSON.stringify(note.options || []);
+
+                const opts = note.options || [];
 
                 noteEl.innerHTML = `
                     <div class="note-header">
                         <span><span class="warning-icon">🚨</span>✈️ ${note.flightNo} (ETD: ${note.time})</span>
                     </div>
-                    ${note.options.length > 0 ? `<div class="note-options">[ ${note.options.join(' | ')} ]</div>` : ''}
+                    ${opts.length > 0 ? `<div class="note-options">[ ${opts.join(' | ')} ]</div>` : ''}
                     
                     ${note.content ? `<div class="note-content">${note.content}</div>` : ''}
                     ${note.subNote ? `<div class="sub-note">📌 ${note.subNote}</div>` : ''}
@@ -361,32 +373,26 @@
             checkHighlights();
         }
 
+        // Tương tác trực tiếp với Đám mây
         function toggleStatus(id) {
-            const index = notes.findIndex(n => n.id === id);
-            if (index > -1) {
-                notes[index].isDone = !notes[index].isDone;
-                localStorage.setItem('flightNotes', JSON.stringify(notes));
-                renderNotes();
+            const note = notes.find(n => n.id === id);
+            if (note) {
+                dbRef.child(id).update({ isDone: !note.isDone });
             }
         }
 
         function deleteNote(id) {
             if(confirm("Bạn có chắc chắn muốn xoá briefing này?")) {
-                notes = notes.filter(n => n.id !== id);
-                localStorage.setItem('flightNotes', JSON.stringify(notes));
-                renderNotes();
+                dbRef.child(id).remove();
             }
         }
 
         function editBriefingNote(id) {
-            const index = notes.findIndex(n => n.id === id);
-            if (index > -1) {
-                const currentSubNote = notes[index].subNote || "";
-                const newSubNote = prompt("Nhập nội dung ghi chú phụ (sẽ hiển thị nổi bật phía dưới briefing):", currentSubNote);
+            const note = notes.find(n => n.id === id);
+            if (note) {
+                const newSubNote = prompt("Nhập nội dung ghi chú phụ:", note.subNote || "");
                 if (newSubNote !== null) {
-                    notes[index].subNote = newSubNote.trim();
-                    localStorage.setItem('flightNotes', JSON.stringify(notes));
-                    renderNotes();
+                    dbRef.child(id).update({ subNote: newSubNote.trim() });
                 }
             }
         }
@@ -395,16 +401,13 @@
             const filterDate = document.getElementById('filter-date').value;
             const now = new Date();
             
-            // Tính toán Ngày Ca Trực hiện tại
             const currentH = String(now.getHours()).padStart(2, '0');
             const currentM = String(now.getMinutes()).padStart(2, '0');
             const currentTimeStr = `${currentH}:${currentM}`;
             const currentShiftMins = getShiftMinutes(currentTimeStr);
 
             let currentShiftDateObj = new Date(now);
-            if (currentTimeStr <= "02:00") {
-                currentShiftDateObj.setDate(currentShiftDateObj.getDate() - 1);
-            }
+            if (currentTimeStr <= "02:00") currentShiftDateObj.setDate(currentShiftDateObj.getDate() - 1);
             const y = currentShiftDateObj.getFullYear();
             const m = String(currentShiftDateObj.getMonth() + 1).padStart(2, '0');
             const d = String(currentShiftDateObj.getDate()).padStart(2, '0');
@@ -434,9 +437,6 @@
                 }
             });
         }
-
-        updateClock();
-        renderNotes();
     </script>
 </body>
 </html>
