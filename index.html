@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Briefing Chuyến Bay</title>
+    <style>
+        :root {
+            --primary-color: #00456b;
+            --bg-color: #f4f7f9;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #d1d9e0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .container { width: 100%; max-width: 500px; }
+        
+        #clock {
+            text-align: center; font-size: 20px; font-weight: 600;
+            color: var(--primary-color); margin-bottom: 20px; padding: 10px;
+            background: var(--card-bg); border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .card {
+            background: var(--card-bg); padding: 20px; border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px;
+        }
+
+        h3 {
+            margin-top: 0; color: var(--primary-color);
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 10px; font-size: 18px;
+        }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
+        
+        input[type="text"], input[type="date"], select {
+            width: 100%; padding: 12px; border: 1px solid var(--border-color);
+            border-radius: 6px; box-sizing: border-box; font-size: 15px;
+            background-color: white; font-family: inherit;
+        }
+        input:focus, select:focus { outline: none; border-color: var(--primary-color); }
+
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+        .checkbox-label { display: flex; align-items: center; font-size: 14px; cursor: pointer; font-weight: normal; }
+        .checkbox-label input { margin-right: 8px; width: 16px; height: 16px; }
+
+        .btn-main {
+            background-color: var(--primary-color); color: white; border: none;
+            padding: 14px; width: 100%; border-radius: 6px; font-size: 16px;
+            cursor: pointer; font-weight: bold; margin-top: 10px;
+        }
+        .btn-main:hover { background-color: #003350; }
+
+        /* --- CSS CHO CÁC THẺ BRIEFING --- */
+        .note-item {
+            background: var(--bg-color);
+            border-left: 5px solid var(--primary-color);
+            padding: 15px; margin-bottom: 12px; border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        .note-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; font-size: 16px; color: var(--primary-color);}
+        .note-options { font-size: 12px; color: #d9534f; font-weight: bold; margin-bottom: 5px; }
+        .note-content { font-size: 14px; margin-bottom: 10px; line-height: 1.4; white-space: pre-line; }
+        
+        /* CSS CHO PHẦN GHI CHÚ PHỤ */
+        .sub-note {
+            background-color: #00456b;
+            color: #ffffff;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            white-space: pre-line;
+            border-left: 4px solid #ffc107;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Chế độ Highlight cảnh báo */
+        .note-item.highlight {
+            border-left: 8px solid #dc3545;
+            background-color: #ffe0e0;
+            animation: pulse-danger 1.5s infinite;
+        }
+        @keyframes pulse-danger {
+            0% { box-shadow: 0 0 0 0 rgba(220,53,69, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(220,53,69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220,53,69, 0); }
+        }
+
+        .warning-icon { display: none; margin-right: 5px; font-size: 18px; }
+        .note-item.highlight .warning-icon { display: inline-block; animation: blink-icon 1s infinite; }
+        @keyframes blink-icon { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+
+        .note-item.done { opacity: 0.5; border-left-color: #999; background: #eef1f4; animation: none; box-shadow: none; }
+        .note-item.done .note-header, .note-item.done .note-options { color: #666; text-decoration: line-through; }
+        
+        /* Nút hành động */
+        .note-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-small { padding: 6px 12px; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; color: white; }
+        .btn-done { background-color: #28a745; }
+        .btn-restore { background-color: #ffc107; color: #000; }
+        .btn-note-edit { background-color: #17a2b8; }
+        .btn-delete { background-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="clock">Đang tải đồng hồ...</div>
+        
+        <!-- Khung nhập liệu -->
+        <div class="card">
+            <h3>Tạo Briefing Mới</h3>
+            
+            <div class="form-group">
+                <label>Số hiệu chuyến bay (SHCB):</label>
+                <input type="text" id="flight-number" placeholder="VD: 210 hoặc VN210">
+            </div>
+            
+            <div class="form-group">
+                <label>Giờ bay (ETD):</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <select id="flight-time-hour" style="width: 90px; flex: none; text-align: center;"></select>
+                    <span style="font-weight: bold; font-size: 18px;">:</span>
+                    <select id="flight-time-minute" style="width: 90px; flex: none; text-align: center;">
+                        <option value="00">00</option><option value="05">05</option><option value="10">10</option>
+                        <option value="15">15</option><option value="20">20</option><option value="25">25</option>
+                        <option value="30">30</option><option value="35">35</option><option value="40">40</option>
+                        <option value="45">45</option><option value="50">50</option><option value="55">55</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Ngày bay:</label>
+                <input type="date" id="flight-date">
+            </div>
+            
+            <div class="form-group">
+                <label>Nội dung (tuỳ chọn):</label>
+                <input type="text" id="note-content" placeholder="Nội dung briefing...">
+            </div>
+            
+            <div class="form-group">
+                <label>Nội dung cần take care:</label>
+                <div class="options-grid">
+                    <label class="checkbox-label"><input type="checkbox" value="Checkin trước" class="take-care-option"> Checkin trước</label>
+                    <label class="checkbox-label"><input type="checkbox" value="UPJ" class="take-care-option"> UPJ</label>
+                    <label class="checkbox-label"><input type="checkbox" value="UPW" class="take-care-option"> UPW</label>
+                    <label class="checkbox-label"><input type="checkbox" value="Miễn tháo giày" class="take-care-option"> Miễn tháo giày</label>
+                    <label class="checkbox-label"><input type="checkbox" value="Goshow" class="take-care-option"> Goshow</label>
+                    <label class="checkbox-label"><input type="checkbox" value="Take care IMMI/ANSC" class="take-care-option"> IMMI/ANSC</label>
+                </div>
+            </div>
+            
+            <button class="btn-main" onclick="saveNote()">Lưu Briefing</button>
+        </div>
+
+        <!-- Khung danh sách -->
+        <div class="card">
+            <h3>Danh sách công việc</h3>
+            <div class="form-group">
+                <label>Xem briefing ngày (Ca trực):</label>
+                <input type="date" id="filter-date" onchange="renderNotes()">
+            </div>
+            <div id="notes-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // TẠO DANH SÁCH 24 GIỜ
+        const hourSelect = document.getElementById('flight-time-hour');
+        for (let i = 0; i < 24; i++) {
+            let hr = i.toString().padStart(2, '0');
+            let option = document.createElement('option');
+            option.value = hr;
+            option.text = hr;
+            hourSelect.appendChild(option);
+        }
+
+        const flightData = {
+            "VN1366": "05:45", "VN106": "05:45", "VN1380": "05:50", "VN1392": "06:00",
+            "VN206": "06:00", "VN1464": "06:20", "VN110": "06:45", "VN1404": "06:55",
+            "VN240": "07:00", "VN1340": "07:05", "VN1660": "07:25", "VN1176": "07:35",
+            "VN112": "08:00", "VN1823": "08:00", "VN208": "08:00", "VN244": "09:00",
+            "VN1342": "09:05", "VN118": "09:05", "VN122": "10:00", "VN210": "10:00",
+            "VN1382": "10:20", "VN1272": "10:25", "VN1264": "10:40", "VN1825": "10:50",
+            "VN126": "11:00", "VN246": "11:00", "VN1370": "11:05", "VN7184": "11:20",
+            "VN1276": "11:25", "VN212": "12:00", "VN248": "13:00", "VN1344": "13:05",
+            "VN1827": "13:05", "VN1394": "13:50", "VN214": "14:00", "VN7388": "14:05",
+            "VN1266": "14:15", "VN1422": "14:45", "VN250": "15:00", "VN1829": "15:30",
+            "VN134": "15:30", "VN1374": "15:35", "VN1468": "15:55", "VN216": "16:00",
+            "VN140": "16:45", "VN254": "17:00", "VN1386": "17:30", "VN1186": "17:55",
+            "VN218": "18:00", "VN1414": "18:15", "VN142": "18:55", "VN1268": "18:55",
+            "VN258": "19:00", "VN146": "19:40", "VN220": "20:00", "VN260": "21:00",
+            "VN224": "22:00", "VN270": "23:00",
+            "VN524": "07:20", "VN601": "08:40", "VN402": "09:05", "VN651": "09:10",
+            "VN631": "09:50", "VN502": "10:10", "VN641": "10:10", "VN51": "10:25",
+            "VN605": "11:30", "VN594": "13:35", "VN679": "15:25", "VN621": "16:00",
+            "VN920": "16:05", "VN570": "16:30", "VN607": "16:50", "VN657": "17:00",
+            "VN813": "17:15", "VN580": "17:50", "VN609": "18:20", "VN977": "18:35",
+            "VN773": "20:45", "VN781": "21:25", "VN11": "22:50", "VN31": "23:00",
+            "VN648": "23:25", "VN408": "23:45", "VN342": "00:00", "VN320": "00:10",
+            "VN306": "00:20", "VN350": "00:35", "VN516": "00:35", "VN422": "01:10"
+        };
+
+        let notes = JSON.parse(localStorage.getItem('flightNotes')) || [];
+
+        // HÀM TÍNH NGÀY CA TRỰC: Nếu giờ <= 02:00, nó thuộc ca trực của ngày hôm trước
+        function getShiftDate(dateStr, timeStr) {
+            if (timeStr <= "02:00") {
+                const parts = dateStr.split('-');
+                const d = new Date(parts[0], parts[1] - 1, parts[2]);
+                d.setDate(d.getDate() - 1);
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${y}-${m}-${day}`;
+            }
+            return dateStr;
+        }
+
+        // HÀM TÍNH SỐ PHÚT TRONG CA: Ép các giờ xuyên đêm cộng thêm 24 tiếng để nằm ở cuối danh sách
+        function getShiftMinutes(timeStr) {
+            const [h, m] = timeStr.split(':').map(Number);
+            let mins = h * 60 + m;
+            if (timeStr <= "02:00") {
+                mins += 24 * 60;
+            }
+            return mins;
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('vi-VN', { hour12: false });
+            const dateString = now.toLocaleDateString('vi-VN');
+            document.getElementById('clock').innerText = `${timeString} - ${dateString}`;
+            checkHighlights();
+        }
+        setInterval(updateClock, 1000);
+
+        const today = new Date().toLocaleDateString('en-CA');
+        document.getElementById('flight-date').value = today;
+        document.getElementById('filter-date').value = today;
+
+        document.getElementById('flight-number').addEventListener('input', function(e) {
+            let val = e.target.value.toUpperCase().trim();
+            if (/^\d+$/.test(val)) val = 'VN' + val;
+            if (flightData[val]) {
+                const [h, m] = flightData[val].split(':');
+                document.getElementById('flight-time-hour').value = h;
+                document.getElementById('flight-time-minute').value = m;
+            }
+        });
+
+        function saveNote() {
+            let flightNo = document.getElementById('flight-number').value.toUpperCase().trim();
+            if (/^\d+$/.test(flightNo)) flightNo = 'VN' + flightNo;
+            
+            const h = document.getElementById('flight-time-hour').value;
+            const m = document.getElementById('flight-time-minute').value;
+            const time = `${h}:${m}`;
+            const date = document.getElementById('flight-date').value;
+            const content = document.getElementById('note-content').value.trim();
+            
+            if (!flightNo || !date) { alert("Vui lòng nhập đầy đủ SHCB và Ngày bay!"); return; }
+
+            // --- KIỂM TRA ETD TRONG QUÁ KHỨ ---
+            const now = new Date();
+            const etdDateTime = new Date(`${date}T${time}:00`);
+            
+            if (etdDateTime < now) {
+                alert("ETD đã qua! Không thể tạo briefing cho chuyến bay trong quá khứ.");
+                return;
+            }
+            // ---------------------------------
+
+            const checkboxes = document.querySelectorAll('.take-care-option:checked');
+            const options = Array.from(checkboxes).map(cb => cb.value);
+
+            const newNote = {
+                id: Date.now().toString(),
+                flightNo, time, date, content, options, subNote: "", isDone: false
+            };
+
+            notes.push(newNote);
+            localStorage.setItem('flightNotes', JSON.stringify(notes));
+            
+            document.getElementById('flight-number').value = '';
+            document.getElementById('flight-time-hour').value = '00';
+            document.getElementById('flight-time-minute').value = '00';
+            document.getElementById('note-content').value = '';
+            checkboxes.forEach(cb => cb.checked = false);
+            
+            renderNotes();
+        }
+
+        function renderNotes() {
+            const listDiv = document.getElementById('notes-list');
+            const filterDate = document.getElementById('filter-date').value;
+            listDiv.innerHTML = '';
+
+            // Lọc theo Ngày Ca Trực
+            let filteredNotes = notes.filter(n => {
+                const shiftDate = getShiftDate(n.date, n.time);
+                return shiftDate === filterDate;
+            });
+            
+            // Sắp xếp theo số phút của Ca Trực
+            filteredNotes.sort((a, b) => getShiftMinutes(a.time) - getShiftMinutes(b.time));
+
+            const activeNotes = filteredNotes.filter(n => !n.isDone);
+            const doneNotes = filteredNotes.filter(n => n.isDone);
+            const sortedNotes = [...activeNotes, ...doneNotes];
+
+            if (sortedNotes.length === 0) {
+                listDiv.innerHTML = '<p style="text-align: center; color: #888;">Không có briefing nào cho ca trực ngày này.</p>';
+                return;
+            }
+
+            sortedNotes.forEach(note => {
+                const noteEl = document.createElement('div');
+                noteEl.className = `note-item ${note.isDone ? 'done' : ''}`;
+                noteEl.id = `note-${note.id}`;
+                noteEl.dataset.time = note.time;
+                noteEl.dataset.options = JSON.stringify(note.options);
+
+                noteEl.innerHTML = `
+                    <div class="note-header">
+                        <span><span class="warning-icon">🚨</span>✈️ ${note.flightNo} (ETD: ${note.time})</span>
+                    </div>
+                    ${note.options.length > 0 ? `<div class="note-options">[ ${note.options.join(' | ')} ]</div>` : ''}
+                    
+                    ${note.content ? `<div class="note-content">${note.content}</div>` : ''}
+                    ${note.subNote ? `<div class="sub-note">📌 ${note.subNote}</div>` : ''}
+                    
+                    <div class="note-actions">
+                        ${note.isDone 
+                            ? `<button class="btn-small btn-restore" onclick="toggleStatus('${note.id}')">Khôi phục</button>` 
+                            : `<button class="btn-small btn-done" onclick="toggleStatus('${note.id}')">Xong</button>`
+                        }
+                        <button class="btn-small btn-note-edit" onclick="editBriefingNote('${note.id}')">Note</button>
+                        <button class="btn-small btn-delete" onclick="deleteNote('${note.id}')">Xoá</button>
+                    </div>
+                `;
+                listDiv.appendChild(noteEl);
+            });
+            checkHighlights();
+        }
+
+        function toggleStatus(id) {
+            const index = notes.findIndex(n => n.id === id);
+            if (index > -1) {
+                notes[index].isDone = !notes[index].isDone;
+                localStorage.setItem('flightNotes', JSON.stringify(notes));
+                renderNotes();
+            }
+        }
+
+        function deleteNote(id) {
+            if(confirm("Bạn có chắc chắn muốn xoá briefing này?")) {
+                notes = notes.filter(n => n.id !== id);
+                localStorage.setItem('flightNotes', JSON.stringify(notes));
+                renderNotes();
+            }
+        }
+
+        function editBriefingNote(id) {
+            const index = notes.findIndex(n => n.id === id);
+            if (index > -1) {
+                const currentSubNote = notes[index].subNote || "";
+                const newSubNote = prompt("Nhập nội dung ghi chú phụ (sẽ hiển thị nổi bật phía dưới briefing):", currentSubNote);
+                if (newSubNote !== null) {
+                    notes[index].subNote = newSubNote.trim();
+                    localStorage.setItem('flightNotes', JSON.stringify(notes));
+                    renderNotes();
+                }
+            }
+        }
+
+        function checkHighlights() {
+            const filterDate = document.getElementById('filter-date').value;
+            const now = new Date();
+            
+            // Tính toán Ngày Ca Trực hiện tại
+            const currentH = String(now.getHours()).padStart(2, '0');
+            const currentM = String(now.getMinutes()).padStart(2, '0');
+            const currentTimeStr = `${currentH}:${currentM}`;
+            const currentShiftMins = getShiftMinutes(currentTimeStr);
+
+            let currentShiftDateObj = new Date(now);
+            if (currentTimeStr <= "02:00") {
+                currentShiftDateObj.setDate(currentShiftDateObj.getDate() - 1);
+            }
+            const y = currentShiftDateObj.getFullYear();
+            const m = String(currentShiftDateObj.getMonth() + 1).padStart(2, '0');
+            const d = String(currentShiftDateObj.getDate()).padStart(2, '0');
+            const currentShiftDateStr = `${y}-${m}-${d}`;
+
+            if (filterDate !== currentShiftDateStr) return;
+
+            const activeItems = document.querySelectorAll('.note-item:not(.done)');
+            activeItems.forEach(item => {
+                const etd = item.dataset.time;
+                const options = JSON.parse(item.dataset.options || '[]');
+                
+                const etdShiftMins = getShiftMinutes(etd);
+                const diff = etdShiftMins - currentShiftMins;
+
+                let highlightThreshold = 0;
+                if (options.includes("UPW") || options.includes("Miễn tháo giày")) {
+                    highlightThreshold = 120;
+                } else if (options.includes("Goshow") || options.includes("UPJ")) {
+                    highlightThreshold = 60;
+                }
+
+                if (highlightThreshold > 0 && diff <= highlightThreshold && diff >= -120) {
+                    item.classList.add('highlight');
+                } else {
+                    item.classList.remove('highlight');
+                }
+            });
+        }
+
+        updateClock();
+        renderNotes();
+    </script>
+</body>
+</html>
