@@ -164,7 +164,7 @@
         <div class="card">
             <h3>Danh sách công việc</h3>
             <div class="form-group">
-                <label>Xem briefing ngày (Ca trực):</label>
+                <label>Xem briefing theo ngày:</label>
                 <input type="date" id="filter-date" onchange="renderNotes()">
             </div>
             <div id="notes-list"></div>
@@ -320,9 +320,13 @@
             document.getElementById('note-content').value = '';
             checkboxes.forEach(cb => cb.checked = false);
             
-            // Tự động trả Ngày bay về ngày hiện tại của hệ thống
+            // Tự động trả Ngày bay và Xem briefing theo ngày về ngày hiện tại của hệ thống
             const currentToday = new Date().toLocaleDateString('en-CA');
             document.getElementById('flight-date').value = currentToday;
+            document.getElementById('filter-date').value = currentToday;
+            
+            // Ép tải lại danh sách hiển thị ngay lập tức để tương ứng với filter-date vừa đổi
+            renderNotes();
         }
 
         function renderNotes() {
