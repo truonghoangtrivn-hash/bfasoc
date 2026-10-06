@@ -193,7 +193,7 @@
 
         let notes = []; 
 
-        // Lắng nghe dữ liệu thay đổi theo thời gian thực (Real-time sync)
+        // Lắng nghe dữ liệu thay đổi theo thời gian thực
         dbRef.on('value', (snapshot) => {
             const data = snapshot.val();
             notes = data ? Object.values(data) : [];
@@ -263,8 +263,19 @@
 
         function updateClock() {
             const now = new Date();
-            const timeString = now.toLocaleTimeString('vi-VN', { hour12: false });
-            const dateString = now.toLocaleDateString('vi-VN');
+            
+            // Ép chuẩn định dạng giờ: HH:mm:ss
+            const h = String(now.getHours()).padStart(2, '0');
+            const min = String(now.getMinutes()).padStart(2, '0');
+            const sec = String(now.getSeconds()).padStart(2, '0');
+            const timeString = `${h}:${min}:${sec}`;
+            
+            // Ép chuẩn định dạng ngày: DD/MM/YYYY
+            const d = String(now.getDate()).padStart(2, '0');
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const y = now.getFullYear();
+            const dateString = `${d}/${m}/${y}`;
+            
             document.getElementById('clock').innerText = `${timeString} - ${dateString}`;
             checkHighlights();
         }
@@ -297,7 +308,6 @@
             const checkboxes = document.querySelectorAll('.take-care-option:checked');
             const options = Array.from(checkboxes).map(cb => cb.value);
 
-            // Kiểm tra bắt buộc tất cả các trường
             if (!flightNo || !date || !content) { 
                 alert("Vui lòng nhập đầy đủ SHCB, Ngày bay và Nội dung briefing!"); 
                 return; 
@@ -328,12 +338,10 @@
             document.getElementById('note-content').value = '';
             checkboxes.forEach(cb => cb.checked = false);
             
-            // Tự động trả Ngày bay và Xem briefing theo ngày về ngày hiện tại của hệ thống
             const currentToday = new Date().toLocaleDateString('en-CA');
             document.getElementById('flight-date').value = currentToday;
             document.getElementById('filter-date').value = currentToday;
             
-            // Ép tải lại danh sách hiển thị ngay lập tức để tương ứng với filter-date vừa đổi
             renderNotes();
         }
 
