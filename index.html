@@ -30,13 +30,12 @@
         /* CHUYỂN ĐỔI GIAO DIỆN SANG ĐỊNH DẠNG PC */
         .container { 
             width: 100%; 
-            max-width: 1200px; /* Mở rộng tối đa cho màn hình PC */
+            max-width: 1200px;
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
 
-        /* Đồng hồ & Trạng thái mạng */
         .header-section {
             width: 100%;
         }
@@ -64,7 +63,15 @@
         }
 
         .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
+        
+        /* THAY ĐỔI MÀU SẮC LÀM NỔI BẬT CÁC TIÊU ĐỀ CHÍNH */
+        label { 
+            display: block; 
+            font-weight: 700; 
+            margin-bottom: 6px; 
+            font-size: 14px; 
+            color: #0056b3; /* Màu xanh lam nổi bật */
+        }
         
         input[type="text"], input[type="date"], select, textarea {
             width: 100%; padding: 12px; border: 1px solid var(--border-color);
@@ -75,7 +82,16 @@
         input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary-color); }
 
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
-        .checkbox-label { display: flex; align-items: center; font-size: 14px; cursor: pointer; font-weight: normal; }
+        
+        /* TRẢ LẠI MÀU SẮC BÌNH THƯỜNG CHO CÁC CHECKBOX, TRÁNH RỐI MẮT */
+        .checkbox-label { 
+            display: flex; 
+            align-items: center; 
+            font-size: 14px; 
+            cursor: pointer; 
+            font-weight: normal; 
+            color: var(--text-color); 
+        }
         .checkbox-label input { margin-right: 8px; width: 16px; height: 16px; }
 
         .btn-main {
@@ -124,13 +140,10 @@
         .btn-note-edit { background-color: #17a2b8; }
         .btn-delete { background-color: #dc3545; }
         
-        /* =======================================================
-           ĐIỀU CHỈNH GIAO DIỆN RIÊNG CHO MÀN HÌNH PC/LAPTOP
-           ======================================================= */
         @media (min-width: 850px) {
             .container {
                 display: grid;
-                grid-template-columns: 350px 1fr; /* Chia 2 cột: Cột nhập liệu 350px, Cột danh sách phần còn lại */
+                grid-template-columns: 350px 1fr;
                 grid-template-areas: 
                     "header header"
                     "form list";
@@ -143,7 +156,7 @@
             #form-card { 
                 grid-area: form; 
                 margin-bottom: 0;
-                position: sticky; /* Ghim form đứng yên khi cuộn chuột danh sách bên phải */
+                position: sticky;
                 top: 15px;
             }
             
@@ -151,10 +164,10 @@
             
             #notes-list {
                 display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Danh sách biến thành dạng lưới bám sát màn hình */
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
                 gap: 15px;
             }
-            .note-item { margin-bottom: 0; } /* Bỏ margin bottom vì đã có gap của grid */
+            .note-item { margin-bottom: 0; }
         }
     </style>
 </head>
@@ -166,7 +179,7 @@
             <div id="network-status">Đang kết nối cơ sở dữ liệu...</div>
         </div>
         
-        <!-- Khung nhập liệu (Bên trái trên PC) -->
+        <!-- Khung nhập liệu -->
         <div class="card" id="form-card">
             <h3>Tạo Briefing Mới</h3>
             
@@ -208,6 +221,7 @@
                     <label class="checkbox-label"><input type="checkbox" value="Miễn tháo giày" class="take-care-option"> Miễn tháo giày</label>
                     <label class="checkbox-label"><input type="checkbox" value="Goshow" class="take-care-option"> Goshow</label>
                     <label class="checkbox-label"><input type="checkbox" value="Take care IMMI/ANSC" class="take-care-option"> IMMI/ANSC</label>
+                    <label class="checkbox-label"><input type="checkbox" value="Khác" class="take-care-option"> Khác</label>
                 </div>
             </div>
             
@@ -215,7 +229,7 @@
             <button class="btn-main" onclick="cancelEdit()" id="cancel-edit-btn" style="display: none; background-color: #6c757d; margin-top: 10px;">Hủy Sửa</button>
         </div>
 
-        <!-- Khung danh sách (Bên phải trên PC) -->
+        <!-- Khung danh sách -->
         <div class="card" id="list-card">
             <h3>Danh sách công việc</h3>
             <div class="form-group">
@@ -227,9 +241,6 @@
     </div>
 
     <script>
-        // ==========================================
-        // CẤU HÌNH ĐÁM MÂY FIREBASE
-        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyB-FBkdSl8RITRApb9bLCO-icuEVq3KjAc",
             authDomain: "bfasoc-52e00.firebaseapp.com",
