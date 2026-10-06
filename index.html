@@ -27,6 +27,20 @@
             justify-content: center;
         }
         
+        /* CSS MÀN HÌNH ĐĂNG NHẬP */
+        #login-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color); display: flex; align-items: center; justify-content: center;
+            z-index: 1000;
+        }
+        .login-box {
+            background: var(--card-bg); padding: 30px; border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 320px; text-align: center;
+        }
+        .beta-tag {
+            text-align: center; font-size: 13px; color: #888; font-style: italic; margin-bottom: 10px;
+        }
+
         /* CHUYỂN ĐỔI GIAO DIỆN SANG ĐỊNH DẠNG PC */
         .container { 
             width: 100%; 
@@ -42,7 +56,7 @@
         
         #clock {
             text-align: center; font-size: 20px; font-weight: 600;
-            color: var(--primary-color); margin-bottom: 10px; padding: 10px;
+            color: var(--primary-color); margin-bottom: 5px; padding: 10px;
             background: var(--card-bg); border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
@@ -64,16 +78,15 @@
 
         .form-group { margin-bottom: 15px; }
         
-        /* THAY ĐỔI MÀU SẮC LÀM NỔI BẬT CÁC TIÊU ĐỀ CHÍNH */
         label { 
             display: block; 
             font-weight: 700; 
             margin-bottom: 6px; 
             font-size: 14px; 
-            color: #0056b3; /* Màu xanh lam nổi bật */
+            color: #0056b3; 
         }
         
-        input[type="text"], input[type="date"], select, textarea {
+        input[type="text"], input[type="password"], input[type="date"], select, textarea {
             width: 100%; padding: 12px; border: 1px solid var(--border-color);
             border-radius: 6px; box-sizing: border-box; font-size: 15px;
             background-color: white; font-family: inherit;
@@ -83,7 +96,6 @@
 
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
         
-        /* TRẢ LẠI MÀU SẮC BÌNH THƯỜNG CHO CÁC CHECKBOX, TRÁNH RỐI MẮT */
         .checkbox-label { 
             display: flex; 
             align-items: center; 
@@ -149,9 +161,9 @@
                     "form list";
                 align-items: start;
             }
-            .header-section { grid-area: header; display: flex; gap: 15px; align-items: center; justify-content: center; }
-            #clock { flex: 1; margin-bottom: 0; }
-            #network-status { padding: 15px; font-size: 14px; margin-bottom: 0; }
+            .header-section { grid-area: header; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+            #clock { width: 100%; box-sizing: border-box; }
+            #network-status { padding: 10px; font-size: 14px; margin-bottom: 0; width: 100%; box-sizing: border-box; }
 
             #form-card { 
                 grid-area: form; 
@@ -172,10 +184,24 @@
     </style>
 </head>
 <body>
-    <div class="container">
+
+    <!-- MÀN HÌNH ĐĂNG NHẬP -->
+    <div id="login-screen">
+        <div class="login-box">
+            <h2 style="color: var(--primary-color); margin-top: 0;">Briefing VNA</h2>
+            <div class="beta-tag">Phiên bản thử nghiệm</div>
+            <input type="password" id="app-password" placeholder="Nhập mật khẩu..." onkeypress="if(event.key === 'Enter') checkPassword()">
+            <button class="btn-main" onclick="checkPassword()">Đăng Nhập</button>
+            <p id="login-error" style="color: #dc3545; display: none; font-size: 14px; font-weight: bold; margin-top: 15px; margin-bottom: 0;">Mật khẩu không đúng!</p>
+        </div>
+    </div>
+
+    <!-- PHẦN MỀM CHÍNH (Bị ẩn khi chưa đăng nhập) -->
+    <div class="container" id="main-app" style="display: none;">
         <!-- Khung Header -->
         <div class="header-section">
             <div id="clock">Đang tải đồng hồ...</div>
+            <div class="beta-tag">Phiên bản thử nghiệm</div>
             <div id="network-status">Đang kết nối cơ sở dữ liệu...</div>
         </div>
         
@@ -241,6 +267,61 @@
     </div>
 
     <script>
+        // ==========================================
+        // XỬ LÝ ĐĂNG NHẬP VÀ TIMEOUT 15 PHÚT
+        // ==========================================
+        let idleTimer;
+        const IDLE_TIMEOUT_MS = 15 * 60 * 1000; // 15 phút
+
+        function startIdleTimer() {
+            clearTimeout(idleTimer);
+            idleTimer = setTimeout(logout, IDLE_TIMEOUT_MS);
+        }
+
+        function resetIdleTimer() {
+            if (sessionStorage.getItem('isAuthenticated') === 'true') {
+                startIdleTimer();
+            }
+        }
+
+        function checkPassword() {
+            const pwd = document.getElementById('app-password').value;
+            if (pwd === "140482") {
+                sessionStorage.setItem('isAuthenticated', 'true');
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = ''; // Khôi phục định dạng CSS gốc (Flex/Grid)
+                document.getElementById('login-error').style.display = 'none';
+                startIdleTimer();
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('isAuthenticated');
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('main-app').style.display = 'none';
+            document.getElementById('app-password').value = '';
+            clearTimeout(idleTimer);
+        }
+
+        // Theo dõi hoạt động người dùng để reset đồng hồ tự động đăng xuất
+        ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(event => {
+            window.addEventListener(event, resetIdleTimer, true);
+        });
+
+        // Kiểm tra xem đã đăng nhập từ trước chưa khi tải lại trang
+        window.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('isAuthenticated') === 'true') {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = '';
+                startIdleTimer();
+            }
+        });
+
+        // ==========================================
+        // CẤU HÌNH ĐÁM MÂY FIREBASE
+        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyB-FBkdSl8RITRApb9bLCO-icuEVq3KjAc",
             authDomain: "bfasoc-52e00.firebaseapp.com",
