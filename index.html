@@ -27,18 +27,34 @@
             justify-content: center;
         }
         
-        .container { width: 100%; max-width: 500px; }
+        /* CHUYỂN ĐỔI GIAO DIỆN SANG ĐỊNH DẠNG PC */
+        .container { 
+            width: 100%; 
+            max-width: 1200px; /* Mở rộng tối đa cho màn hình PC */
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Đồng hồ & Trạng thái mạng */
+        .header-section {
+            width: 100%;
+        }
         
         #clock {
             text-align: center; font-size: 20px; font-weight: 600;
-            color: var(--primary-color); margin-bottom: 20px; padding: 10px;
+            color: var(--primary-color); margin-bottom: 10px; padding: 10px;
             background: var(--card-bg); border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        #network-status { 
+            text-align: center; font-size: 12px; color: #28a745; font-weight: bold; 
+            background: var(--card-bg); padding: 5px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         .card {
             background: var(--card-bg); padding: 20px; border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
         h3 {
@@ -50,13 +66,12 @@
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
         
-        /* Cập nhật thêm thẻ textarea để hỗ trợ đa dòng */
         input[type="text"], input[type="date"], select, textarea {
             width: 100%; padding: 12px; border: 1px solid var(--border-color);
             border-radius: 6px; box-sizing: border-box; font-size: 15px;
             background-color: white; font-family: inherit;
         }
-        textarea { resize: vertical; } /* Cho phép kéo giãn chiều cao ô nhập liệu */
+        textarea { resize: vertical; }
         input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary-color); }
 
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
@@ -66,20 +81,19 @@
         .btn-main {
             background-color: var(--primary-color); color: white; border: none;
             padding: 14px; width: 100%; border-radius: 6px; font-size: 16px;
-            cursor: pointer; font-weight: bold; margin-top: 10px;
+            cursor: pointer; font-weight: bold; margin-top: 10px; transition: all 0.2s;
         }
-        .btn-main:hover { background-color: #003350; }
+        .btn-main:hover { opacity: 0.9; }
 
         .note-item {
             background: var(--bg-color);
             border-left: 5px solid var(--primary-color);
             padding: 15px; margin-bottom: 12px; border-radius: 6px;
             transition: all 0.3s ease;
+            height: fit-content;
         }
         .note-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; font-size: 16px; color: var(--primary-color);}
         .note-options { font-size: 12px; color: #d9534f; font-weight: bold; margin-bottom: 5px; }
-        
-        /* Sử dụng pre-wrap để giữ nguyên định dạng xuống dòng và khoảng trắng của bản gốc */
         .note-content { font-size: 14px; margin-bottom: 10px; line-height: 1.4; white-space: pre-wrap; word-wrap: break-word; }
         
         .sub-note {
@@ -106,19 +120,54 @@
         .btn-small { padding: 6px 12px; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; color: white; }
         .btn-done { background-color: #28a745; }
         .btn-restore { background-color: #ffc107; color: #000; }
+        .btn-edit { background-color: #007bff; } 
         .btn-note-edit { background-color: #17a2b8; }
         .btn-delete { background-color: #dc3545; }
         
-        /* Báo trạng thái kết nối mạng */
-        #network-status { text-align: center; font-size: 12px; margin-bottom: 10px; color: #28a745; font-weight: bold; }
+        /* =======================================================
+           ĐIỀU CHỈNH GIAO DIỆN RIÊNG CHO MÀN HÌNH PC/LAPTOP
+           ======================================================= */
+        @media (min-width: 850px) {
+            .container {
+                display: grid;
+                grid-template-columns: 350px 1fr; /* Chia 2 cột: Cột nhập liệu 350px, Cột danh sách phần còn lại */
+                grid-template-areas: 
+                    "header header"
+                    "form list";
+                align-items: start;
+            }
+            .header-section { grid-area: header; display: flex; gap: 15px; align-items: center; justify-content: center; }
+            #clock { flex: 1; margin-bottom: 0; }
+            #network-status { padding: 15px; font-size: 14px; margin-bottom: 0; }
+
+            #form-card { 
+                grid-area: form; 
+                margin-bottom: 0;
+                position: sticky; /* Ghim form đứng yên khi cuộn chuột danh sách bên phải */
+                top: 15px;
+            }
+            
+            #list-card { grid-area: list; margin-bottom: 0; }
+            
+            #notes-list {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Danh sách biến thành dạng lưới bám sát màn hình */
+                gap: 15px;
+            }
+            .note-item { margin-bottom: 0; } /* Bỏ margin bottom vì đã có gap của grid */
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div id="clock">Đang tải đồng hồ...</div>
-        <div id="network-status">Đang kết nối cơ sở dữ liệu...</div>
+        <!-- Khung Header -->
+        <div class="header-section">
+            <div id="clock">Đang tải đồng hồ...</div>
+            <div id="network-status">Đang kết nối cơ sở dữ liệu...</div>
+        </div>
         
-        <div class="card">
+        <!-- Khung nhập liệu (Bên trái trên PC) -->
+        <div class="card" id="form-card">
             <h3>Tạo Briefing Mới</h3>
             
             <div class="form-group">
@@ -129,9 +178,9 @@
             <div class="form-group">
                 <label>Giờ bay (ETD):</label>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <select id="flight-time-hour" style="width: 90px; flex: none; text-align: center;"></select>
+                    <select id="flight-time-hour" style="flex: 1; text-align: center;"></select>
                     <span style="font-weight: bold; font-size: 18px;">:</span>
-                    <select id="flight-time-minute" style="width: 90px; flex: none; text-align: center;">
+                    <select id="flight-time-minute" style="flex: 1; text-align: center;">
                         <option value="00">00</option><option value="05">05</option><option value="10">10</option>
                         <option value="15">15</option><option value="20">20</option><option value="25">25</option>
                         <option value="30">30</option><option value="35">35</option><option value="40">40</option>
@@ -147,7 +196,6 @@
             
             <div class="form-group">
                 <label>Nội dung:</label>
-                <!-- Đổi thành thẻ textarea cho phép nhập và copy nhiều dòng -->
                 <textarea id="note-content" rows="4" placeholder="Nội dung briefing..."></textarea>
             </div>
             
@@ -163,10 +211,12 @@
                 </div>
             </div>
             
-            <button class="btn-main" onclick="saveNote()">Lưu Briefing</button>
+            <button class="btn-main" onclick="saveNote()" id="main-submit-btn">Lưu Briefing</button>
+            <button class="btn-main" onclick="cancelEdit()" id="cancel-edit-btn" style="display: none; background-color: #6c757d; margin-top: 10px;">Hủy Sửa</button>
         </div>
 
-        <div class="card">
+        <!-- Khung danh sách (Bên phải trên PC) -->
+        <div class="card" id="list-card">
             <h3>Danh sách công việc</h3>
             <div class="form-group">
                 <label>Xem briefing theo ngày:</label>
@@ -189,16 +239,14 @@
             messagingSenderId: "506938701933",
             appId: "1:506938701933:web:07892aa17f9eceb9f3e764"
         };
-        // ==========================================
 
-        // Khởi tạo Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const dbRef = database.ref('briefingData');
 
         let notes = []; 
+        let editingId = null;
 
-        // Lắng nghe dữ liệu thay đổi theo thời gian thực
         dbRef.on('value', (snapshot) => {
             const data = snapshot.val();
             notes = data ? Object.values(data) : [];
@@ -210,7 +258,6 @@
         });
 
 
-        // TẠO DANH SÁCH 24 GIỜ
         const hourSelect = document.getElementById('flight-time-hour');
         for (let i = 0; i < 24; i++) {
             let hr = i.toString().padStart(2, '0');
@@ -269,13 +316,11 @@
         function updateClock() {
             const now = new Date();
             
-            // Định dạng giờ: HH:mm:ss
             const h = String(now.getHours()).padStart(2, '0');
             const min = String(now.getMinutes()).padStart(2, '0');
             const sec = String(now.getSeconds()).padStart(2, '0');
             const timeString = `${h}:${min}:${sec}`;
             
-            // Định dạng ngày: DD/MM/YYYY
             const d = String(now.getDate()).padStart(2, '0');
             const m = String(now.getMonth() + 1).padStart(2, '0');
             const y = now.getFullYear();
@@ -299,6 +344,60 @@
                 document.getElementById('flight-time-minute').value = m;
             }
         });
+
+        function resetForm() {
+            editingId = null;
+            document.getElementById('flight-number').value = '';
+            document.getElementById('flight-time-hour').value = '00';
+            document.getElementById('flight-time-minute').value = '00';
+            document.getElementById('note-content').value = '';
+            document.querySelectorAll('.take-care-option').forEach(cb => cb.checked = false);
+            
+            const currentToday = new Date().toLocaleDateString('en-CA');
+            document.getElementById('flight-date').value = currentToday;
+            
+            const btnMain = document.getElementById('main-submit-btn');
+            btnMain.innerText = "Lưu Briefing";
+            btnMain.style.backgroundColor = "var(--primary-color)";
+            btnMain.style.color = "white";
+            
+            document.getElementById('cancel-edit-btn').style.display = "none";
+        }
+
+        function cancelEdit() {
+            resetForm();
+        }
+
+        function editBriefing(id) {
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+
+            editingId = id;
+            
+            document.getElementById('flight-number').value = note.flightNo;
+            const [h, m] = note.time.split(':');
+            document.getElementById('flight-time-hour').value = h;
+            document.getElementById('flight-time-minute').value = m;
+            document.getElementById('flight-date').value = note.date;
+            document.getElementById('note-content').value = note.content;
+
+            const checkboxes = document.querySelectorAll('.take-care-option');
+            checkboxes.forEach(cb => cb.checked = false);
+            if (note.options) {
+                checkboxes.forEach(cb => {
+                    if (note.options.includes(cb.value)) cb.checked = true;
+                });
+            }
+
+            const btnMain = document.getElementById('main-submit-btn');
+            btnMain.innerText = "Cập nhật Briefing";
+            btnMain.style.backgroundColor = "#ffc107";
+            btnMain.style.color = "#000";
+            
+            document.getElementById('cancel-edit-btn').style.display = "block";
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
         function saveNote() {
             let flightNo = document.getElementById('flight-number').value.toUpperCase().trim();
@@ -325,29 +424,23 @@
             const now = new Date();
             const etdDateTime = new Date(`${date}T${time}:00`);
             
-            if (etdDateTime < now) {
+            if (!editingId && etdDateTime < now) {
                 alert("ETD đã qua! Không thể tạo briefing cho chuyến bay trong quá khứ.");
                 return;
             }
 
-            const id = Date.now().toString();
-            const newNote = { id, flightNo, time, date, content, options, subNote: "", isDone: false };
-
-            // Đẩy dữ liệu lên Đám mây
-            dbRef.child(id).set(newNote);
+            if (editingId) {
+                dbRef.child(editingId).update({ flightNo, time, date, content, options });
+            } else {
+                const id = Date.now().toString();
+                const newNote = { id, flightNo, time, date, content, options, subNote: "", isDone: false };
+                dbRef.child(id).set(newNote);
+            }
             
-            // Đặt lại các trường nhập liệu
-            document.getElementById('flight-number').value = '';
-            document.getElementById('flight-time-hour').value = '00';
-            document.getElementById('flight-time-minute').value = '00';
-            document.getElementById('note-content').value = '';
-            checkboxes.forEach(cb => cb.checked = false);
+            resetForm();
             
-            // Tự động trả Ngày bay và Xem briefing theo ngày về ngày hiện tại của hệ thống
             const currentToday = new Date().toLocaleDateString('en-CA');
-            document.getElementById('flight-date').value = currentToday;
             document.getElementById('filter-date').value = currentToday;
-            
             renderNotes();
         }
 
@@ -395,6 +488,7 @@
                             ? `<button class="btn-small btn-restore" onclick="toggleStatus('${note.id}')">Khôi phục</button>` 
                             : `<button class="btn-small btn-done" onclick="toggleStatus('${note.id}')">Xong</button>`
                         }
+                        <button class="btn-small btn-edit" onclick="editBriefing('${note.id}')">Sửa</button>
                         <button class="btn-small btn-note-edit" onclick="editBriefingNote('${note.id}')">Note</button>
                         <button class="btn-small btn-delete" onclick="deleteNote('${note.id}')">Xoá</button>
                     </div>
