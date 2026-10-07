@@ -46,7 +46,7 @@
         /* KHUNG CHỨA TOÀN BỘ PHẦN MỀM */
         .container { 
             width: 100%; 
-            max-width: 100%; /* Phủ kín 100% diện tích màn hình */
+            max-width: 100%; 
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -82,7 +82,6 @@
 
         .form-group { margin-bottom: 15px; }
         
-        /* Tiêu đề xanh lam nổi bật */
         label { display: block; font-weight: 700; margin-bottom: 6px; font-size: 14px; color: #0056b3; }
         
         input[type="text"], input[type="password"], input[type="date"], select, textarea {
@@ -118,7 +117,6 @@
         .p-note-date { font-size: 12px; color: #666; margin-bottom: 5px; font-weight: bold; }
         .p-note-content { font-size: 14px; white-space: pre-wrap; word-wrap: break-word; line-height: 1.4; margin-bottom: 8px; }
         
-        /* Box chứa danh sách ghi chú (Mặc định cho Mobile) */
         #personal-notes-list { margin-top: 15px; max-height: 400px; overflow-y: auto; }
 
         .note-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; font-size: 16px; color: var(--primary-color);}
@@ -148,13 +146,10 @@
         .btn-note-edit { background-color: #17a2b8; }
         .btn-delete { background-color: #dc3545; }
         
-        /* ==========================================================
-           BỐ CỤC 3 CỘT (FORM - DANH SÁCH - GHI CHÚ) TRÊN PC TỪ 1024PX
-           ========================================================== */
+        /* BỐ CỤC 3 CỘT TRÊN PC */
         @media (min-width: 1024px) {
             .container {
                 display: grid; 
-                /* Form: 380px | Danh sách: 2 phần | Ghi chú: 1 phần (bằng 50% danh sách) */
                 grid-template-columns: 380px 2fr 1fr; 
                 grid-template-areas: 
                     "header header header" 
@@ -168,17 +163,14 @@
             #clock { width: 100%; margin-bottom: 0; }
             #network-status { padding: 10px; font-size: 14px; margin-bottom: 0; width: 100%; }
 
-            /* Cột 1: Form Briefing */
             #form-card { 
                 grid-area: form; margin-bottom: 0;
-                position: sticky; top: 15px; /* Ghim cứng đứng im khi cuộn */
+                position: sticky; top: 15px; 
                 max-height: 95vh; overflow-y: auto;
             }
             
-            /* Cột 2: Danh Sách Briefing */
             #list-card { grid-area: list; margin-bottom: 0; }
             
-            /* Lưới hiển thị danh sách công việc tự động co giãn điền kín không gian */
             #notes-list { 
                 display: grid; 
                 grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
@@ -186,18 +178,17 @@
             }
             .note-item { margin-bottom: 0; }
 
-            /* Cột 3: Form Ghi Chú Cá Nhân */
             #personal-notes-card { 
                 grid-area: pnotes; margin-bottom: 0;
-                position: sticky; top: 15px; /* Ghim cứng đứng im khi cuộn */
+                position: sticky; top: 15px; 
                 max-height: 95vh; 
                 display: flex; flex-direction: column; 
             }
             
             #personal-notes-list {
-                max-height: none; /* Xóa giới hạn cũ của mobile */
-                flex: 1; /* Tự giãn lấp đầy thẻ card */
-                min-height: 0; /* Ép thanh cuộn hoạt động đúng */
+                max-height: none; 
+                flex: 1; 
+                min-height: 0; 
             }
         }
     </style>
@@ -209,7 +200,8 @@
         <div class="login-box">
             <h2 style="color: var(--primary-color); margin-top: 0;">Briefing VNA</h2>
             <div class="beta-tag">Phiên bản thử nghiệm</div>
-            <input type="password" id="app-password" placeholder="Nhập mật khẩu..." onkeypress="if(event.key === 'Enter') checkPassword()">
+            <!-- Đã thêm thuộc tính autofocus và sự kiện oninput vào thẻ input -->
+            <input type="password" id="app-password" placeholder="Nhập mật khẩu..." autofocus oninput="if(this.value === '140482') checkPassword();" onkeypress="if(event.key === 'Enter') checkPassword()">
             <button class="btn-main" onclick="checkPassword()" style="margin-top: 15px;">Đăng Nhập</button>
             <p id="login-error" style="color: #dc3545; display: none; font-size: 14px; font-weight: bold; margin-top: 15px; margin-bottom: 0;">Mật khẩu không đúng!</p>
         </div>
@@ -217,14 +209,12 @@
 
     <!-- PHẦN MỀM CHÍNH -->
     <div class="container" id="main-app" style="display: none;">
-        <!-- KHUNG HEADER TỔNG -->
         <div class="header-section">
             <div id="clock">Đang tải đồng hồ...</div>
             <div class="beta-tag">Phiên bản thử nghiệm</div>
             <div id="network-status">Đang kết nối cơ sở dữ liệu...</div>
         </div>
         
-        <!-- CỘT 1: FORM TẠO BRIEFING -->
         <div class="card" id="form-card">
             <h3>Tạo Briefing Mới</h3>
             
@@ -274,7 +264,6 @@
             <button class="btn-main" onclick="cancelEdit()" id="cancel-edit-btn" style="display: none; background-color: #6c757d; margin-top: 10px;">Hủy Sửa</button>
         </div>
 
-        <!-- CỘT 2: DANH SÁCH BRIEFING -->
         <div class="card" id="list-card">
             <h3>Danh sách công việc</h3>
             <div class="form-group">
@@ -284,7 +273,6 @@
             <div id="notes-list"></div>
         </div>
 
-        <!-- CỘT 3: GHI CHÚ CÁ NHÂN -->
         <div class="card" id="personal-notes-card">
             <h3>Ghi chú cá nhân</h3>
             
@@ -297,15 +285,13 @@
                 <button class="btn-main" onclick="cancelPersonalNoteEdit()" id="pnote-cancel-btn" style="display: none; background-color: #6c757d; margin-top: 0; flex: 1;">Hủy Sửa</button>
             </div>
             
-            <div id="personal-notes-list">
-                <!-- Dữ liệu JS sẽ render vào đây -->
-            </div>
+            <div id="personal-notes-list"></div>
         </div>
     </div>
 
     <script>
         // ==========================================
-        // XỬ LÝ ĐĂNG NHẬP VÀ TIMEOUT 15 PHÚT
+        // XỬ LÝ ĐĂNG NHẬP VÀ TIMEOUT
         // ==========================================
         let idleTimer;
         const IDLE_TIMEOUT_MS = 15 * 60 * 1000;
@@ -337,18 +323,24 @@
             document.getElementById('login-screen').style.display = 'flex';
             document.getElementById('main-app').style.display = 'none';
             document.getElementById('app-password').value = '';
+            document.getElementById('login-error').style.display = 'none';
             clearTimeout(idleTimer);
+            // Đưa lại con trỏ chuột vào ô nhập mật khẩu khi bị đăng xuất
+            setTimeout(() => document.getElementById('app-password').focus(), 100);
         }
 
         ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(event => {
             window.addEventListener(event, resetIdleTimer, true);
         });
 
+        // Kiểm tra đăng nhập và thiết lập trỏ chuột sẵn sàng ngay khi tải xong cấu trúc trang
         window.addEventListener('DOMContentLoaded', () => {
             if (sessionStorage.getItem('isAuthenticated') === 'true') {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = '';
                 startIdleTimer();
+            } else {
+                setTimeout(() => document.getElementById('app-password').focus(), 100);
             }
         });
 
@@ -395,7 +387,6 @@
         // ==========================================
         // XỬ LÝ GHI CHÚ CÁ NHÂN & TÌM KIẾM KHÔNG DẤU
         // ==========================================
-        
         function removeVietnameseTones(str) {
             if (!str) return "";
             str = str.toLowerCase();
