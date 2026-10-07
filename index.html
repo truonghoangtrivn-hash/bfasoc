@@ -17,6 +17,8 @@
             --border-color: #d1d9e0;
         }
         
+        * { box-sizing: border-box; }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
             background-color: var(--bg-color);
@@ -41,15 +43,20 @@
             text-align: center; font-size: 13px; color: #888; font-style: italic; margin-bottom: 10px;
         }
 
+        /* KHUNG CHỨA TOÀN BỘ PHẦN MỀM */
         .container { 
             width: 100%; 
-            max-width: 1200px;
+            max-width: 100%; /* Phủ kín 100% diện tích màn hình */
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
 
-        .header-section { width: 100%; }
+        /* THIẾT LẬP THỨ TỰ HIỂN THỊ TRÊN ĐIỆN THOẠI */
+        .header-section { width: 100%; order: 1; }
+        #form-card { order: 2; }
+        #list-card { order: 3; }
+        #personal-notes-card { order: 4; }
         
         #clock {
             text-align: center; font-size: 20px; font-weight: 600;
@@ -75,6 +82,7 @@
 
         .form-group { margin-bottom: 15px; }
         
+        /* Tiêu đề xanh lam nổi bật */
         label { display: block; font-weight: 700; margin-bottom: 6px; font-size: 14px; color: #0056b3; }
         
         input[type="text"], input[type="password"], input[type="date"], select, textarea {
@@ -87,13 +95,13 @@
 
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
         
-        .checkbox-label { display: flex; align-items: center; font-size: 14px; cursor: pointer; color: var(--text-color); }
+        .checkbox-label { display: flex; align-items: center; font-size: 14px; cursor: pointer; color: var(--text-color); font-weight: normal; }
         .checkbox-label input { margin-right: 8px; width: 16px; height: 16px; }
 
         .btn-main {
             background-color: var(--primary-color); color: white; border: none;
             padding: 14px; width: 100%; border-radius: 6px; font-size: 16px;
-            cursor: pointer; font-weight: bold; margin-top: 10px; transition: all 0.2s;
+            cursor: pointer; font-weight: bold; transition: all 0.2s;
         }
         .btn-main:hover { opacity: 0.9; }
 
@@ -102,7 +110,6 @@
             padding: 15px; margin-bottom: 12px; border-radius: 6px; height: fit-content;
         }
         
-        /* CSS riêng cho Ghi chú cá nhân */
         .personal-note-item {
             background: #fff8e1; border-left: 5px solid #ffc107;
             padding: 12px; margin-bottom: 10px; border-radius: 6px;
@@ -110,6 +117,9 @@
         }
         .p-note-date { font-size: 12px; color: #666; margin-bottom: 5px; font-weight: bold; }
         .p-note-content { font-size: 14px; white-space: pre-wrap; word-wrap: break-word; line-height: 1.4; margin-bottom: 8px; }
+        
+        /* Box chứa danh sách ghi chú (Mặc định cho Mobile) */
+        #personal-notes-list { margin-top: 15px; max-height: 400px; overflow-y: auto; }
 
         .note-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; font-size: 16px; color: var(--primary-color);}
         .note-options { font-size: 12px; color: #d9534f; font-weight: bold; margin-bottom: 5px; }
@@ -117,7 +127,7 @@
         
         .sub-note {
             background-color: #00456b; color: #ffffff; padding: 10px 12px; margin-bottom: 12px;
-            border-radius: 6px; font-size: 14px; font-weight: bold; white-space: pre-wrap; border-left: 4px solid #ffc107;
+            border-radius: 6px; font-size: 14px; font-weight: bold; white-space: pre-wrap; border-left: 4px solid #ffc107; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .note-item.highlight { border-left: 8px solid #dc3545; background-color: #ffe0e0; animation: pulse-danger 1.5s infinite; }
@@ -127,7 +137,7 @@
         .note-item.highlight .warning-icon { display: inline-block; animation: blink-icon 1s infinite; }
         @keyframes blink-icon { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
 
-        .note-item.done { opacity: 0.5; border-left-color: #999; background: #eef1f4; }
+        .note-item.done { opacity: 0.5; border-left-color: #999; background: #eef1f4; animation: none; box-shadow: none;}
         .note-item.done .note-header, .note-item.done .note-options { color: #666; text-decoration: line-through; }
         
         .note-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
@@ -138,26 +148,57 @@
         .btn-note-edit { background-color: #17a2b8; }
         .btn-delete { background-color: #dc3545; }
         
-        .left-column { display: flex; flex-direction: column; gap: 20px; }
-
-        @media (min-width: 850px) {
+        /* ==========================================================
+           BỐ CỤC 3 CỘT (FORM - DANH SÁCH - GHI CHÚ) TRÊN PC TỪ 1024PX
+           ========================================================== */
+        @media (min-width: 1024px) {
             .container {
-                display: grid; grid-template-columns: 350px 1fr;
-                grid-template-areas: "header header" "leftcol list"; align-items: start;
-            }
-            .header-section { grid-area: header; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-            #clock { width: 100%; box-sizing: border-box; }
-            #network-status { padding: 10px; font-size: 14px; margin-bottom: 0; width: 100%; box-sizing: border-box; }
-
-            /* Cột trái chứa cả 2 form, cho phép cuộn độc lập nếu dài */
-            .left-column {
-                grid-area: leftcol; position: sticky; top: 15px;
-                max-height: 95vh; overflow-y: auto; padding-right: 5px;
+                display: grid; 
+                /* Form: 380px | Danh sách: 2 phần | Ghi chú: 1 phần (bằng 50% danh sách) */
+                grid-template-columns: 380px 2fr 1fr; 
+                grid-template-areas: 
+                    "header header header" 
+                    "form list pnotes"; 
+                align-items: start;
             }
             
+            .header-section, #form-card, #list-card, #personal-notes-card { order: initial; }
+            
+            .header-section { grid-area: header; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+            #clock { width: 100%; margin-bottom: 0; }
+            #network-status { padding: 10px; font-size: 14px; margin-bottom: 0; width: 100%; }
+
+            /* Cột 1: Form Briefing */
+            #form-card { 
+                grid-area: form; margin-bottom: 0;
+                position: sticky; top: 15px; /* Ghim cứng đứng im khi cuộn */
+                max-height: 95vh; overflow-y: auto;
+            }
+            
+            /* Cột 2: Danh Sách Briefing */
             #list-card { grid-area: list; margin-bottom: 0; }
-            #notes-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
+            
+            /* Lưới hiển thị danh sách công việc tự động co giãn điền kín không gian */
+            #notes-list { 
+                display: grid; 
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+                gap: 15px; 
+            }
             .note-item { margin-bottom: 0; }
+
+            /* Cột 3: Form Ghi Chú Cá Nhân */
+            #personal-notes-card { 
+                grid-area: pnotes; margin-bottom: 0;
+                position: sticky; top: 15px; /* Ghim cứng đứng im khi cuộn */
+                max-height: 95vh; 
+                display: flex; flex-direction: column; 
+            }
+            
+            #personal-notes-list {
+                max-height: none; /* Xóa giới hạn cũ của mobile */
+                flex: 1; /* Tự giãn lấp đầy thẻ card */
+                min-height: 0; /* Ép thanh cuộn hoạt động đúng */
+            }
         }
     </style>
 </head>
@@ -169,90 +210,71 @@
             <h2 style="color: var(--primary-color); margin-top: 0;">Briefing VNA</h2>
             <div class="beta-tag">Phiên bản thử nghiệm</div>
             <input type="password" id="app-password" placeholder="Nhập mật khẩu..." onkeypress="if(event.key === 'Enter') checkPassword()">
-            <button class="btn-main" onclick="checkPassword()">Đăng Nhập</button>
+            <button class="btn-main" onclick="checkPassword()" style="margin-top: 15px;">Đăng Nhập</button>
             <p id="login-error" style="color: #dc3545; display: none; font-size: 14px; font-weight: bold; margin-top: 15px; margin-bottom: 0;">Mật khẩu không đúng!</p>
         </div>
     </div>
 
     <!-- PHẦN MỀM CHÍNH -->
     <div class="container" id="main-app" style="display: none;">
+        <!-- KHUNG HEADER TỔNG -->
         <div class="header-section">
             <div id="clock">Đang tải đồng hồ...</div>
             <div class="beta-tag">Phiên bản thử nghiệm</div>
             <div id="network-status">Đang kết nối cơ sở dữ liệu...</div>
         </div>
         
-        <!-- Cột Bên Trái (Chứa Form Briefing + Form Ghi chú cá nhân) -->
-        <div class="left-column">
-            <!-- Khung nhập liệu Briefing -->
-            <div class="card" id="form-card">
-                <h3>Tạo Briefing Mới</h3>
-                
-                <div class="form-group">
-                    <label>Số hiệu chuyến bay (SHCB):</label>
-                    <input type="text" id="flight-number" placeholder="VD: 210 hoặc VN210">
-                </div>
-                
-                <div class="form-group">
-                    <label>Giờ bay (ETD):</label>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <select id="flight-time-hour" style="flex: 1; text-align: center;"></select>
-                        <span style="font-weight: bold; font-size: 18px;">:</span>
-                        <select id="flight-time-minute" style="flex: 1; text-align: center;">
-                            <option value="00">00</option><option value="05">05</option><option value="10">10</option>
-                            <option value="15">15</option><option value="20">20</option><option value="25">25</option>
-                            <option value="30">30</option><option value="35">35</option><option value="40">40</option>
-                            <option value="45">45</option><option value="50">50</option><option value="55">55</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>Ngày bay:</label>
-                    <input type="date" id="flight-date">
-                </div>
-                
-                <div class="form-group">
-                    <label>Nội dung:</label>
-                    <textarea id="note-content" rows="4" placeholder="Nội dung briefing..."></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label>Nội dung cần take care:</label>
-                    <div class="options-grid">
-                        <label class="checkbox-label"><input type="checkbox" value="Checkin trước" class="take-care-option"> Checkin trước</label>
-                        <label class="checkbox-label"><input type="checkbox" value="UPJ" class="take-care-option"> UPJ</label>
-                        <label class="checkbox-label"><input type="checkbox" value="UPW" class="take-care-option"> UPW</label>
-                        <label class="checkbox-label"><input type="checkbox" value="Miễn tháo giày" class="take-care-option"> Miễn tháo giày</label>
-                        <label class="checkbox-label"><input type="checkbox" value="Goshow" class="take-care-option"> Goshow</label>
-                        <label class="checkbox-label"><input type="checkbox" value="Take care IMMI/ANSC" class="take-care-option"> IMMI/ANSC</label>
-                        <label class="checkbox-label"><input type="checkbox" value="Khác" class="take-care-option"> Khác</label>
-                    </div>
-                </div>
-                
-                <button class="btn-main" onclick="saveNote()" id="main-submit-btn">Lưu Briefing</button>
-                <button class="btn-main" onclick="cancelEdit()" id="cancel-edit-btn" style="display: none; background-color: #6c757d; margin-top: 10px;">Hủy Sửa</button>
+        <!-- CỘT 1: FORM TẠO BRIEFING -->
+        <div class="card" id="form-card">
+            <h3>Tạo Briefing Mới</h3>
+            
+            <div class="form-group">
+                <label>Số hiệu chuyến bay (SHCB):</label>
+                <input type="text" id="flight-number" placeholder="VD: 210 hoặc VN210">
             </div>
-
-            <!-- Khung Ghi Chú Cá Nhân -->
-            <div class="card" id="personal-notes-card">
-                <h3>Ghi chú cá nhân</h3>
-                
-                <!-- Thanh tìm kiếm -->
-                <input type="text" id="search-personal-note" placeholder="🔍 Tìm kiếm nhanh ghi chú..." oninput="renderPersonalNotes()" style="margin-bottom: 10px; border-color: #17a2b8;">
-                
-                <!-- Khung thêm mới -->
-                <textarea id="personal-note-input" rows="3" placeholder="Nhập ghi chú mới vào đây..."></textarea>
-                <button class="btn-main" onclick="savePersonalNote()" style="background-color: #17a2b8; padding: 10px;">Thêm Ghi Chú</button>
-                
-                <!-- Danh sách hiển thị ghi chú -->
-                <div id="personal-notes-list" style="margin-top: 15px; max-height: 400px; overflow-y: auto;">
-                    <!-- Dữ liệu JS sẽ render vào đây -->
+            
+            <div class="form-group">
+                <label>Giờ bay (ETD):</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <select id="flight-time-hour" style="flex: 1; text-align: center;"></select>
+                    <span style="font-weight: bold; font-size: 18px;">:</span>
+                    <select id="flight-time-minute" style="flex: 1; text-align: center;">
+                        <option value="00">00</option><option value="05">05</option><option value="10">10</option>
+                        <option value="15">15</option><option value="20">20</option><option value="25">25</option>
+                        <option value="30">30</option><option value="35">35</option><option value="40">40</option>
+                        <option value="45">45</option><option value="50">50</option><option value="55">55</option>
+                    </select>
                 </div>
             </div>
+            
+            <div class="form-group">
+                <label>Ngày bay:</label>
+                <input type="date" id="flight-date">
+            </div>
+            
+            <div class="form-group">
+                <label>Nội dung:</label>
+                <textarea id="note-content" rows="4" placeholder="Nội dung briefing..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Nội dung cần take care:</label>
+                <div class="options-grid">
+                    <label class="checkbox-label"><input type="checkbox" value="Checkin trước" class="take-care-option"> Checkin trước</label>
+                    <label class="checkbox-label"><input type="checkbox" value="UPJ" class="take-care-option"> UPJ</label>
+                    <label class="checkbox-label"><input type="checkbox" value="UPW" class="take-care-option"> UPW</label>
+                    <label class="checkbox-label"><input type="checkbox" value="Miễn tháo giày" class="take-care-option"> Miễn tháo giày</label>
+                    <label class="checkbox-label"><input type="checkbox" value="Goshow" class="take-care-option"> Goshow</label>
+                    <label class="checkbox-label"><input type="checkbox" value="Take care IMMI/ANSC" class="take-care-option"> IMMI/ANSC</label>
+                    <label class="checkbox-label"><input type="checkbox" value="Khác" class="take-care-option"> Khác</label>
+                </div>
+            </div>
+            
+            <button class="btn-main" onclick="saveNote()" id="main-submit-btn" style="margin-top: 10px;">Lưu Briefing</button>
+            <button class="btn-main" onclick="cancelEdit()" id="cancel-edit-btn" style="display: none; background-color: #6c757d; margin-top: 10px;">Hủy Sửa</button>
         </div>
 
-        <!-- Khung danh sách Briefing -->
+        <!-- CỘT 2: DANH SÁCH BRIEFING -->
         <div class="card" id="list-card">
             <h3>Danh sách công việc</h3>
             <div class="form-group">
@@ -260,6 +282,24 @@
                 <input type="date" id="filter-date" onchange="renderNotes()">
             </div>
             <div id="notes-list"></div>
+        </div>
+
+        <!-- CỘT 3: GHI CHÚ CÁ NHÂN -->
+        <div class="card" id="personal-notes-card">
+            <h3>Ghi chú cá nhân</h3>
+            
+            <input type="text" id="search-personal-note" placeholder="🔍 Tìm kiếm nhanh ghi chú..." oninput="renderPersonalNotes()" style="margin-bottom: 10px; border-color: #17a2b8;">
+            
+            <textarea id="personal-note-input" rows="3" placeholder="Nhập ghi chú mới vào đây..."></textarea>
+            
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="btn-main" onclick="savePersonalNote()" id="pnote-submit-btn" style="background-color: #17a2b8; margin-top: 0; flex: 1;">Thêm Ghi Chú</button>
+                <button class="btn-main" onclick="cancelPersonalNoteEdit()" id="pnote-cancel-btn" style="display: none; background-color: #6c757d; margin-top: 0; flex: 1;">Hủy Sửa</button>
+            </div>
+            
+            <div id="personal-notes-list">
+                <!-- Dữ liệu JS sẽ render vào đây -->
+            </div>
         </div>
     </div>
 
@@ -328,13 +368,13 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const dbRef = database.ref('briefingData');
-        const personalDbRef = database.ref('personalNotesData'); // Ngăn dữ liệu mới cho Ghi chú
+        const personalDbRef = database.ref('personalNotesData');
 
         let notes = []; 
-        let personalNotes = []; // Mảng chứa ghi chú cá nhân
+        let personalNotes = []; 
         let editingId = null;
+        let editingPersonalNoteId = null;
 
-        // Đồng bộ Briefing
         dbRef.on('value', (snapshot) => {
             const data = snapshot.val();
             notes = data ? Object.values(data) : [];
@@ -345,7 +385,6 @@
             document.getElementById('network-status').style.color = "#dc3545";
         });
 
-        // Đồng bộ Ghi chú cá nhân
         personalDbRef.on('value', (snapshot) => {
             const data = snapshot.val();
             personalNotes = data ? Object.values(data) : [];
@@ -354,22 +393,66 @@
 
 
         // ==========================================
-        // XỬ LÝ GHI CHÚ CÁ NHÂN
+        // XỬ LÝ GHI CHÚ CÁ NHÂN & TÌM KIẾM KHÔNG DẤU
         // ==========================================
+        
+        function removeVietnameseTones(str) {
+            if (!str) return "";
+            str = str.toLowerCase();
+            str = str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            str = str.replace(/đ/g, 'd');
+            return str;
+        }
+
         function savePersonalNote() {
             const content = document.getElementById('personal-note-input').value.trim();
-            if (!content) return; // Không lưu nếu để trống
+            if (!content) return;
 
-            const id = Date.now().toString();
-            // Lấy ngày tháng năm hiện tại để lưu kèm
             const now = new Date();
             const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
 
-            const newNote = { id, content, dateStr };
-            personalDbRef.child(id).set(newNote); // Đẩy lên Firebase
-            
-            document.getElementById('personal-note-input').value = ''; // Xóa trắng ô nhập
+            if (editingPersonalNoteId) {
+                personalDbRef.child(editingPersonalNoteId).update({ 
+                    id: editingPersonalNoteId,
+                    content: content,
+                    dateStr: dateStr 
+                });
+            } else {
+                const id = Date.now().toString();
+                const newNote = { id, content, dateStr };
+                personalDbRef.child(id).set(newNote); 
+            }
+            resetPersonalNoteForm();
         }
+
+        function editPersonalNote(id) {
+            const note = personalNotes.find(n => n.id === id);
+            if (!note) return;
+
+            editingPersonalNoteId = id;
+            document.getElementById('personal-note-input').value = note.content;
+
+            const btnSubmit = document.getElementById('pnote-submit-btn');
+            btnSubmit.innerText = "Cập nhật Ghi Chú";
+            btnSubmit.style.backgroundColor = "#ffc107";
+            btnSubmit.style.color = "#000";
+            
+            document.getElementById('pnote-cancel-btn').style.display = "block";
+        }
+
+        function resetPersonalNoteForm() {
+            editingPersonalNoteId = null;
+            document.getElementById('personal-note-input').value = '';
+            
+            const btnSubmit = document.getElementById('pnote-submit-btn');
+            btnSubmit.innerText = "Thêm Ghi Chú";
+            btnSubmit.style.backgroundColor = "#17a2b8";
+            btnSubmit.style.color = "white";
+            
+            document.getElementById('pnote-cancel-btn').style.display = "none";
+        }
+
+        function cancelPersonalNoteEdit() { resetPersonalNoteForm(); }
 
         function deletePersonalNote(id) {
             if(confirm("Bạn có chắc chắn muốn xoá ghi chú cá nhân này?")) {
@@ -379,14 +462,20 @@
 
         function renderPersonalNotes() {
             const listDiv = document.getElementById('personal-notes-list');
-            const keyword = document.getElementById('search-personal-note').value.toLowerCase().trim();
+            const keyword = document.getElementById('search-personal-note').value.trim();
+            const searchKey = removeVietnameseTones(keyword);
             listDiv.innerHTML = '';
 
-            // Thuật toán tìm kiếm mạnh mẽ: Lọc các ghi chú chứa từ khóa
-            let filteredNotes = personalNotes.filter(n => n.content.toLowerCase().includes(keyword));
+            let filteredNotes = personalNotes.filter(n => {
+                const content = n.content || "";
+                return removeVietnameseTones(content).includes(searchKey);
+            });
             
-            // Sắp xếp ghi chú mới nhất lên đầu
-            filteredNotes.sort((a, b) => b.id - a.id);
+            filteredNotes.sort((a, b) => {
+                const idA = a.id.replace('auto_', '');
+                const idB = b.id.replace('auto_', '');
+                return Number(idB) - Number(idA);
+            });
 
             if (filteredNotes.length === 0) {
                 listDiv.innerHTML = '<p style="text-align: center; color: #888; font-size: 13px;">Không tìm thấy ghi chú nào.</p>';
@@ -398,9 +487,10 @@
                 noteEl.className = 'personal-note-item';
                 
                 noteEl.innerHTML = `
-                    <div class="p-note-date">📅 ${note.dateStr}</div>
+                    <div class="p-note-date">📅 ${note.dateStr || ''}</div>
                     <div class="p-note-content">${note.content}</div>
                     <div class="note-actions">
+                        <button class="btn-small btn-edit" onclick="editPersonalNote('${note.id}')">Sửa</button>
                         <button class="btn-small btn-delete" onclick="deletePersonalNote('${note.id}')">Xoá</button>
                     </div>
                 `;
@@ -410,7 +500,7 @@
 
 
         // ==========================================
-        // XỬ LÝ BRIEFING CHUYẾN BAY (Giữ nguyên)
+        // XỬ LÝ BRIEFING CHUYẾN BAY
         // ==========================================
         const hourSelect = document.getElementById('flight-time-hour');
         for (let i = 0; i < 24; i++) {
@@ -436,15 +526,7 @@
             "VN140": "16:45", "VN254": "17:00", "VN1386": "17:30", "VN1186": "17:55",
             "VN218": "18:00", "VN1414": "18:15", "VN142": "18:55", "VN1268": "18:55",
             "VN258": "19:00", "VN146": "19:40", "VN220": "20:00", "VN260": "21:00",
-            "VN224": "22:00", "VN270": "23:00",
-            "VN524": "07:20", "VN601": "08:40", "VN402": "09:05", "VN651": "09:10",
-            "VN631": "09:50", "VN502": "10:10", "VN641": "10:10", "VN51": "10:25",
-            "VN605": "11:30", "VN594": "13:35", "VN679": "15:25", "VN621": "16:00",
-            "VN920": "16:05", "VN570": "16:30", "VN607": "16:50", "VN657": "17:00",
-            "VN813": "17:15", "VN580": "17:50", "VN609": "18:20", "VN977": "18:35",
-            "VN773": "20:45", "VN781": "21:25", "VN11": "22:50", "VN31": "23:00",
-            "VN648": "23:25", "VN408": "23:45", "VN342": "00:00", "VN320": "00:10",
-            "VN306": "00:20", "VN350": "00:35", "VN516": "00:35", "VN422": "01:10"
+            "VN224": "22:00", "VN270": "23:00"
         };
 
         function getShiftDate(dateStr, timeStr) {
@@ -577,12 +659,34 @@
                 return;
             }
 
+            let autoContent = `✈️ Briefing: ${flightNo} (ETD: ${time})\n📝 ${content}`;
+            if (options.length > 0) {
+                autoContent += `\n📌 Take care: ${options.join(' | ')}`;
+            }
+
+            const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+
             if (editingId) {
                 dbRef.child(editingId).update({ flightNo, time, date, content, options });
+
+                const pNoteId = "auto_" + editingId;
+                personalDbRef.child(pNoteId).update({ 
+                    id: pNoteId, 
+                    content: autoContent,
+                    dateStr: dateStr
+                });
+
             } else {
                 const id = Date.now().toString();
                 const newNote = { id, flightNo, time, date, content, options, subNote: "", isDone: false };
                 dbRef.child(id).set(newNote);
+
+                const pNoteId = "auto_" + id; 
+                personalDbRef.child(pNoteId).set({
+                    id: pNoteId,
+                    content: autoContent,
+                    dateStr: dateStr
+                });
             }
             
             resetForm();
