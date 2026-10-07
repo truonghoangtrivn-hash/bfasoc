@@ -41,7 +41,6 @@
             text-align: center; font-size: 13px; color: #888; font-style: italic; margin-bottom: 10px;
         }
 
-        /* CHUYỂN ĐỔI GIAO DIỆN SANG ĐỊNH DẠNG PC */
         .container { 
             width: 100%; 
             max-width: 1200px;
@@ -50,9 +49,7 @@
             gap: 20px;
         }
 
-        .header-section {
-            width: 100%;
-        }
+        .header-section { width: 100%; }
         
         #clock {
             text-align: center; font-size: 20px; font-weight: 600;
@@ -78,13 +75,7 @@
 
         .form-group { margin-bottom: 15px; }
         
-        label { 
-            display: block; 
-            font-weight: 700; 
-            margin-bottom: 6px; 
-            font-size: 14px; 
-            color: #0056b3; 
-        }
+        label { display: block; font-weight: 700; margin-bottom: 6px; font-size: 14px; color: #0056b3; }
         
         input[type="text"], input[type="password"], input[type="date"], select, textarea {
             width: 100%; padding: 12px; border: 1px solid var(--border-color);
@@ -96,14 +87,7 @@
 
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
         
-        .checkbox-label { 
-            display: flex; 
-            align-items: center; 
-            font-size: 14px; 
-            cursor: pointer; 
-            font-weight: normal; 
-            color: var(--text-color); 
-        }
+        .checkbox-label { display: flex; align-items: center; font-size: 14px; cursor: pointer; color: var(--text-color); }
         .checkbox-label input { margin-right: 8px; width: 16px; height: 16px; }
 
         .btn-main {
@@ -114,37 +98,39 @@
         .btn-main:hover { opacity: 0.9; }
 
         .note-item {
-            background: var(--bg-color);
-            border-left: 5px solid var(--primary-color);
-            padding: 15px; margin-bottom: 12px; border-radius: 6px;
-            transition: all 0.3s ease;
-            height: fit-content;
+            background: var(--bg-color); border-left: 5px solid var(--primary-color);
+            padding: 15px; margin-bottom: 12px; border-radius: 6px; height: fit-content;
         }
+        
+        /* CSS riêng cho Ghi chú cá nhân */
+        .personal-note-item {
+            background: #fff8e1; border-left: 5px solid #ffc107;
+            padding: 12px; margin-bottom: 10px; border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .p-note-date { font-size: 12px; color: #666; margin-bottom: 5px; font-weight: bold; }
+        .p-note-content { font-size: 14px; white-space: pre-wrap; word-wrap: break-word; line-height: 1.4; margin-bottom: 8px; }
+
         .note-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; font-size: 16px; color: var(--primary-color);}
         .note-options { font-size: 12px; color: #d9534f; font-weight: bold; margin-bottom: 5px; }
         .note-content { font-size: 14px; margin-bottom: 10px; line-height: 1.4; white-space: pre-wrap; word-wrap: break-word; }
         
         .sub-note {
             background-color: #00456b; color: #ffffff; padding: 10px 12px; margin-bottom: 12px;
-            border-radius: 6px; font-size: 14px; font-weight: bold; white-space: pre-wrap; word-wrap: break-word;
-            border-left: 4px solid #ffc107; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            border-radius: 6px; font-size: 14px; font-weight: bold; white-space: pre-wrap; border-left: 4px solid #ffc107;
         }
 
-        .note-item.highlight {
-            border-left: 8px solid #dc3545; background-color: #ffe0e0; animation: pulse-danger 1.5s infinite;
-        }
-        @keyframes pulse-danger {
-            0% { box-shadow: 0 0 0 0 rgba(220,53,69, 0.4); } 70% { box-shadow: 0 0 0 8px rgba(220,53,69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220,53,69, 0); }
-        }
+        .note-item.highlight { border-left: 8px solid #dc3545; background-color: #ffe0e0; animation: pulse-danger 1.5s infinite; }
+        @keyframes pulse-danger { 0% { box-shadow: 0 0 0 0 rgba(220,53,69, 0.4); } 70% { box-shadow: 0 0 0 8px rgba(220,53,69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220,53,69, 0); } }
 
         .warning-icon { display: none; margin-right: 5px; font-size: 18px; }
         .note-item.highlight .warning-icon { display: inline-block; animation: blink-icon 1s infinite; }
         @keyframes blink-icon { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
 
-        .note-item.done { opacity: 0.5; border-left-color: #999; background: #eef1f4; animation: none; box-shadow: none; }
+        .note-item.done { opacity: 0.5; border-left-color: #999; background: #eef1f4; }
         .note-item.done .note-header, .note-item.done .note-options { color: #666; text-decoration: line-through; }
         
-        .note-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .note-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
         .btn-small { padding: 6px 12px; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; color: white; }
         .btn-done { background-color: #28a745; }
         .btn-restore { background-color: #ffc107; color: #000; }
@@ -152,33 +138,25 @@
         .btn-note-edit { background-color: #17a2b8; }
         .btn-delete { background-color: #dc3545; }
         
+        .left-column { display: flex; flex-direction: column; gap: 20px; }
+
         @media (min-width: 850px) {
             .container {
-                display: grid;
-                grid-template-columns: 350px 1fr;
-                grid-template-areas: 
-                    "header header"
-                    "form list";
-                align-items: start;
+                display: grid; grid-template-columns: 350px 1fr;
+                grid-template-areas: "header header" "leftcol list"; align-items: start;
             }
             .header-section { grid-area: header; display: flex; flex-direction: column; align-items: center; justify-content: center; }
             #clock { width: 100%; box-sizing: border-box; }
             #network-status { padding: 10px; font-size: 14px; margin-bottom: 0; width: 100%; box-sizing: border-box; }
 
-            #form-card { 
-                grid-area: form; 
-                margin-bottom: 0;
-                position: sticky;
-                top: 15px;
+            /* Cột trái chứa cả 2 form, cho phép cuộn độc lập nếu dài */
+            .left-column {
+                grid-area: leftcol; position: sticky; top: 15px;
+                max-height: 95vh; overflow-y: auto; padding-right: 5px;
             }
             
             #list-card { grid-area: list; margin-bottom: 0; }
-            
-            #notes-list {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-                gap: 15px;
-            }
+            #notes-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
             .note-item { margin-bottom: 0; }
         }
     </style>
@@ -196,66 +174,85 @@
         </div>
     </div>
 
-    <!-- PHẦN MỀM CHÍNH (Bị ẩn khi chưa đăng nhập) -->
+    <!-- PHẦN MỀM CHÍNH -->
     <div class="container" id="main-app" style="display: none;">
-        <!-- Khung Header -->
         <div class="header-section">
             <div id="clock">Đang tải đồng hồ...</div>
             <div class="beta-tag">Phiên bản thử nghiệm</div>
             <div id="network-status">Đang kết nối cơ sở dữ liệu...</div>
         </div>
         
-        <!-- Khung nhập liệu -->
-        <div class="card" id="form-card">
-            <h3>Tạo Briefing Mới</h3>
-            
-            <div class="form-group">
-                <label>Số hiệu chuyến bay (SHCB):</label>
-                <input type="text" id="flight-number" placeholder="VD: 210 hoặc VN210">
+        <!-- Cột Bên Trái (Chứa Form Briefing + Form Ghi chú cá nhân) -->
+        <div class="left-column">
+            <!-- Khung nhập liệu Briefing -->
+            <div class="card" id="form-card">
+                <h3>Tạo Briefing Mới</h3>
+                
+                <div class="form-group">
+                    <label>Số hiệu chuyến bay (SHCB):</label>
+                    <input type="text" id="flight-number" placeholder="VD: 210 hoặc VN210">
+                </div>
+                
+                <div class="form-group">
+                    <label>Giờ bay (ETD):</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <select id="flight-time-hour" style="flex: 1; text-align: center;"></select>
+                        <span style="font-weight: bold; font-size: 18px;">:</span>
+                        <select id="flight-time-minute" style="flex: 1; text-align: center;">
+                            <option value="00">00</option><option value="05">05</option><option value="10">10</option>
+                            <option value="15">15</option><option value="20">20</option><option value="25">25</option>
+                            <option value="30">30</option><option value="35">35</option><option value="40">40</option>
+                            <option value="45">45</option><option value="50">50</option><option value="55">55</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Ngày bay:</label>
+                    <input type="date" id="flight-date">
+                </div>
+                
+                <div class="form-group">
+                    <label>Nội dung:</label>
+                    <textarea id="note-content" rows="4" placeholder="Nội dung briefing..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Nội dung cần take care:</label>
+                    <div class="options-grid">
+                        <label class="checkbox-label"><input type="checkbox" value="Checkin trước" class="take-care-option"> Checkin trước</label>
+                        <label class="checkbox-label"><input type="checkbox" value="UPJ" class="take-care-option"> UPJ</label>
+                        <label class="checkbox-label"><input type="checkbox" value="UPW" class="take-care-option"> UPW</label>
+                        <label class="checkbox-label"><input type="checkbox" value="Miễn tháo giày" class="take-care-option"> Miễn tháo giày</label>
+                        <label class="checkbox-label"><input type="checkbox" value="Goshow" class="take-care-option"> Goshow</label>
+                        <label class="checkbox-label"><input type="checkbox" value="Take care IMMI/ANSC" class="take-care-option"> IMMI/ANSC</label>
+                        <label class="checkbox-label"><input type="checkbox" value="Khác" class="take-care-option"> Khác</label>
+                    </div>
+                </div>
+                
+                <button class="btn-main" onclick="saveNote()" id="main-submit-btn">Lưu Briefing</button>
+                <button class="btn-main" onclick="cancelEdit()" id="cancel-edit-btn" style="display: none; background-color: #6c757d; margin-top: 10px;">Hủy Sửa</button>
             </div>
-            
-            <div class="form-group">
-                <label>Giờ bay (ETD):</label>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <select id="flight-time-hour" style="flex: 1; text-align: center;"></select>
-                    <span style="font-weight: bold; font-size: 18px;">:</span>
-                    <select id="flight-time-minute" style="flex: 1; text-align: center;">
-                        <option value="00">00</option><option value="05">05</option><option value="10">10</option>
-                        <option value="15">15</option><option value="20">20</option><option value="25">25</option>
-                        <option value="30">30</option><option value="35">35</option><option value="40">40</option>
-                        <option value="45">45</option><option value="50">50</option><option value="55">55</option>
-                    </select>
+
+            <!-- Khung Ghi Chú Cá Nhân -->
+            <div class="card" id="personal-notes-card">
+                <h3>Ghi chú cá nhân</h3>
+                
+                <!-- Thanh tìm kiếm -->
+                <input type="text" id="search-personal-note" placeholder="🔍 Tìm kiếm nhanh ghi chú..." oninput="renderPersonalNotes()" style="margin-bottom: 10px; border-color: #17a2b8;">
+                
+                <!-- Khung thêm mới -->
+                <textarea id="personal-note-input" rows="3" placeholder="Nhập ghi chú mới vào đây..."></textarea>
+                <button class="btn-main" onclick="savePersonalNote()" style="background-color: #17a2b8; padding: 10px;">Thêm Ghi Chú</button>
+                
+                <!-- Danh sách hiển thị ghi chú -->
+                <div id="personal-notes-list" style="margin-top: 15px; max-height: 400px; overflow-y: auto;">
+                    <!-- Dữ liệu JS sẽ render vào đây -->
                 </div>
             </div>
-            
-            <div class="form-group">
-                <label>Ngày bay:</label>
-                <input type="date" id="flight-date">
-            </div>
-            
-            <div class="form-group">
-                <label>Nội dung:</label>
-                <textarea id="note-content" rows="4" placeholder="Nội dung briefing..."></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label>Nội dung cần take care:</label>
-                <div class="options-grid">
-                    <label class="checkbox-label"><input type="checkbox" value="Checkin trước" class="take-care-option"> Checkin trước</label>
-                    <label class="checkbox-label"><input type="checkbox" value="UPJ" class="take-care-option"> UPJ</label>
-                    <label class="checkbox-label"><input type="checkbox" value="UPW" class="take-care-option"> UPW</label>
-                    <label class="checkbox-label"><input type="checkbox" value="Miễn tháo giày" class="take-care-option"> Miễn tháo giày</label>
-                    <label class="checkbox-label"><input type="checkbox" value="Goshow" class="take-care-option"> Goshow</label>
-                    <label class="checkbox-label"><input type="checkbox" value="Take care IMMI/ANSC" class="take-care-option"> IMMI/ANSC</label>
-                    <label class="checkbox-label"><input type="checkbox" value="Khác" class="take-care-option"> Khác</label>
-                </div>
-            </div>
-            
-            <button class="btn-main" onclick="saveNote()" id="main-submit-btn">Lưu Briefing</button>
-            <button class="btn-main" onclick="cancelEdit()" id="cancel-edit-btn" style="display: none; background-color: #6c757d; margin-top: 10px;">Hủy Sửa</button>
         </div>
 
-        <!-- Khung danh sách -->
+        <!-- Khung danh sách Briefing -->
         <div class="card" id="list-card">
             <h3>Danh sách công việc</h3>
             <div class="form-group">
@@ -271,7 +268,7 @@
         // XỬ LÝ ĐĂNG NHẬP VÀ TIMEOUT 15 PHÚT
         // ==========================================
         let idleTimer;
-        const IDLE_TIMEOUT_MS = 15 * 60 * 1000; // 15 phút
+        const IDLE_TIMEOUT_MS = 15 * 60 * 1000;
 
         function startIdleTimer() {
             clearTimeout(idleTimer);
@@ -279,9 +276,7 @@
         }
 
         function resetIdleTimer() {
-            if (sessionStorage.getItem('isAuthenticated') === 'true') {
-                startIdleTimer();
-            }
+            if (sessionStorage.getItem('isAuthenticated') === 'true') startIdleTimer();
         }
 
         function checkPassword() {
@@ -289,7 +284,7 @@
             if (pwd === "140482") {
                 sessionStorage.setItem('isAuthenticated', 'true');
                 document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('main-app').style.display = ''; // Khôi phục định dạng CSS gốc (Flex/Grid)
+                document.getElementById('main-app').style.display = ''; 
                 document.getElementById('login-error').style.display = 'none';
                 startIdleTimer();
             } else {
@@ -305,12 +300,10 @@
             clearTimeout(idleTimer);
         }
 
-        // Theo dõi hoạt động người dùng để reset đồng hồ tự động đăng xuất
         ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(event => {
             window.addEventListener(event, resetIdleTimer, true);
         });
 
-        // Kiểm tra xem đã đăng nhập từ trước chưa khi tải lại trang
         window.addEventListener('DOMContentLoaded', () => {
             if (sessionStorage.getItem('isAuthenticated') === 'true') {
                 document.getElementById('login-screen').style.display = 'none';
@@ -335,10 +328,13 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const dbRef = database.ref('briefingData');
+        const personalDbRef = database.ref('personalNotesData'); // Ngăn dữ liệu mới cho Ghi chú
 
         let notes = []; 
+        let personalNotes = []; // Mảng chứa ghi chú cá nhân
         let editingId = null;
 
+        // Đồng bộ Briefing
         dbRef.on('value', (snapshot) => {
             const data = snapshot.val();
             notes = data ? Object.values(data) : [];
@@ -349,7 +345,73 @@
             document.getElementById('network-status').style.color = "#dc3545";
         });
 
+        // Đồng bộ Ghi chú cá nhân
+        personalDbRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            personalNotes = data ? Object.values(data) : [];
+            renderPersonalNotes();
+        });
 
+
+        // ==========================================
+        // XỬ LÝ GHI CHÚ CÁ NHÂN
+        // ==========================================
+        function savePersonalNote() {
+            const content = document.getElementById('personal-note-input').value.trim();
+            if (!content) return; // Không lưu nếu để trống
+
+            const id = Date.now().toString();
+            // Lấy ngày tháng năm hiện tại để lưu kèm
+            const now = new Date();
+            const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+
+            const newNote = { id, content, dateStr };
+            personalDbRef.child(id).set(newNote); // Đẩy lên Firebase
+            
+            document.getElementById('personal-note-input').value = ''; // Xóa trắng ô nhập
+        }
+
+        function deletePersonalNote(id) {
+            if(confirm("Bạn có chắc chắn muốn xoá ghi chú cá nhân này?")) {
+                personalDbRef.child(id).remove();
+            }
+        }
+
+        function renderPersonalNotes() {
+            const listDiv = document.getElementById('personal-notes-list');
+            const keyword = document.getElementById('search-personal-note').value.toLowerCase().trim();
+            listDiv.innerHTML = '';
+
+            // Thuật toán tìm kiếm mạnh mẽ: Lọc các ghi chú chứa từ khóa
+            let filteredNotes = personalNotes.filter(n => n.content.toLowerCase().includes(keyword));
+            
+            // Sắp xếp ghi chú mới nhất lên đầu
+            filteredNotes.sort((a, b) => b.id - a.id);
+
+            if (filteredNotes.length === 0) {
+                listDiv.innerHTML = '<p style="text-align: center; color: #888; font-size: 13px;">Không tìm thấy ghi chú nào.</p>';
+                return;
+            }
+
+            filteredNotes.forEach(note => {
+                const noteEl = document.createElement('div');
+                noteEl.className = 'personal-note-item';
+                
+                noteEl.innerHTML = `
+                    <div class="p-note-date">📅 ${note.dateStr}</div>
+                    <div class="p-note-content">${note.content}</div>
+                    <div class="note-actions">
+                        <button class="btn-small btn-delete" onclick="deletePersonalNote('${note.id}')">Xoá</button>
+                    </div>
+                `;
+                listDiv.appendChild(noteEl);
+            });
+        }
+
+
+        // ==========================================
+        // XỬ LÝ BRIEFING CHUYẾN BAY (Giữ nguyên)
+        // ==========================================
         const hourSelect = document.getElementById('flight-time-hour');
         for (let i = 0; i < 24; i++) {
             let hr = i.toString().padStart(2, '0');
@@ -407,7 +469,6 @@
 
         function updateClock() {
             const now = new Date();
-            
             const h = String(now.getHours()).padStart(2, '0');
             const min = String(now.getMinutes()).padStart(2, '0');
             const sec = String(now.getSeconds()).padStart(2, '0');
@@ -456,16 +517,13 @@
             document.getElementById('cancel-edit-btn').style.display = "none";
         }
 
-        function cancelEdit() {
-            resetForm();
-        }
+        function cancelEdit() { resetForm(); }
 
         function editBriefing(id) {
             const note = notes.find(n => n.id === id);
             if (!note) return;
 
             editingId = id;
-            
             document.getElementById('flight-number').value = note.flightNo;
             const [h, m] = note.time.split(':');
             document.getElementById('flight-time-hour').value = h;
@@ -485,9 +543,7 @@
             btnMain.innerText = "Cập nhật Briefing";
             btnMain.style.backgroundColor = "#ffc107";
             btnMain.style.color = "#000";
-            
             document.getElementById('cancel-edit-btn').style.display = "block";
-
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -530,7 +586,6 @@
             }
             
             resetForm();
-            
             const currentToday = new Date().toLocaleDateString('en-CA');
             document.getElementById('filter-date').value = currentToday;
             renderNotes();
@@ -571,10 +626,8 @@
                         <span><span class="warning-icon">🚨</span>✈️ ${note.flightNo} (ETD: ${note.time})</span>
                     </div>
                     ${opts.length > 0 ? `<div class="note-options">[ ${opts.join(' | ')} ]</div>` : ''}
-                    
                     ${note.content ? `<div class="note-content">${note.content}</div>` : ''}
                     ${note.subNote ? `<div class="sub-note">📌 ${note.subNote}</div>` : ''}
-                    
                     <div class="note-actions">
                         ${note.isDone 
                             ? `<button class="btn-small btn-restore" onclick="toggleStatus('${note.id}')">Khôi phục</button>` 
@@ -592,24 +645,18 @@
 
         function toggleStatus(id) {
             const note = notes.find(n => n.id === id);
-            if (note) {
-                dbRef.child(id).update({ isDone: !note.isDone });
-            }
+            if (note) dbRef.child(id).update({ isDone: !note.isDone });
         }
 
         function deleteNote(id) {
-            if(confirm("Bạn có chắc chắn muốn xoá briefing này?")) {
-                dbRef.child(id).remove();
-            }
+            if(confirm("Bạn có chắc chắn muốn xoá briefing này?")) dbRef.child(id).remove();
         }
 
         function editBriefingNote(id) {
             const note = notes.find(n => n.id === id);
             if (note) {
                 const newSubNote = prompt("Nhập nội dung ghi chú phụ:", note.subNote || "");
-                if (newSubNote !== null) {
-                    dbRef.child(id).update({ subNote: newSubNote.trim() });
-                }
+                if (newSubNote !== null) dbRef.child(id).update({ subNote: newSubNote.trim() });
             }
         }
 
