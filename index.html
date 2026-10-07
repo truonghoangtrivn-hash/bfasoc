@@ -40,7 +40,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 320px; text-align: center;
         }
         .beta-tag {
-            text-align: center; font-size: 13px; color: #888; font-style: italic; margin-bottom: 10px;
+            text-align: center; font-size: 13px; color: #888; font-style: italic; margin-bottom: 8px;
         }
 
         /* KHUNG CHỨA TOÀN BỘ PHẦN MỀM */
@@ -49,7 +49,7 @@
             max-width: 100%; 
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
 
         /* THIẾT LẬP THỨ TỰ HIỂN THỊ TRÊN ĐIỆN THOẠI */
@@ -59,8 +59,8 @@
         #personal-notes-card { order: 4; }
         
         #clock {
-            text-align: center; font-size: 20px; font-weight: 600;
-            color: var(--primary-color); margin-bottom: 5px; padding: 10px;
+            text-align: center; font-size: 18px; font-weight: 600;
+            color: var(--primary-color); margin-bottom: 5px; padding: 8px;
             background: var(--card-bg); border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
@@ -69,44 +69,49 @@
             background: var(--card-bg); padding: 5px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
+        /* THU GỌN KHOẢNG CÁCH FORM LƯU BRIEFING */
         .card {
-            background: var(--card-bg); padding: 20px; border-radius: 10px;
+            background: var(--card-bg); padding: 15px; border-radius: 10px; /* Thu gọn padding */
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
         h3 {
             margin-top: 0; color: var(--primary-color);
             border-bottom: 2px solid var(--bg-color);
-            padding-bottom: 10px; font-size: 18px;
+            padding-bottom: 8px; font-size: 16px; margin-bottom: 12px; /* Thu gọn tiêu đề */
         }
 
-        .form-group { margin-bottom: 15px; }
+        .form-group { margin-bottom: 12px; }
+        .form-row { display: flex; gap: 10px; margin-bottom: 12px; } /* Xếp 2 ô lên cùng dòng */
+        .form-row > div { flex: 1; }
         
-        label { display: block; font-weight: 700; margin-bottom: 6px; font-size: 14px; color: #0056b3; }
+        label { display: block; font-weight: 700; margin-bottom: 4px; font-size: 13px; color: #0056b3; }
         
         input[type="text"], input[type="password"], input[type="date"], select, textarea {
-            width: 100%; padding: 12px; border: 1px solid var(--border-color);
-            border-radius: 6px; box-sizing: border-box; font-size: 15px;
+            width: 100%; padding: 10px; border: 1px solid var(--border-color); /* Thu gọn đệm nhập liệu */
+            border-radius: 6px; box-sizing: border-box; font-size: 14px;
             background-color: white; font-family: inherit;
         }
         textarea { resize: vertical; }
         input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary-color); }
 
-        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+        /* Chỉnh mục Checkbox thành 3 cột */
+        .options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 4px; }
         
-        .checkbox-label { display: flex; align-items: center; font-size: 14px; cursor: pointer; color: var(--text-color); font-weight: normal; }
-        .checkbox-label input { margin-right: 8px; width: 16px; height: 16px; }
+        .checkbox-label { display: flex; align-items: center; font-size: 13px; cursor: pointer; color: var(--text-color); font-weight: normal; }
+        .checkbox-label input { margin-right: 6px; width: 14px; height: 14px; }
 
         .btn-main {
             background-color: var(--primary-color); color: white; border: none;
-            padding: 14px; width: 100%; border-radius: 6px; font-size: 16px;
-            cursor: pointer; font-weight: bold; transition: all 0.2s;
+            padding: 12px; width: 100%; border-radius: 6px; font-size: 15px;
+            cursor: pointer; font-weight: bold; transition: all 0.2s; margin-top: 5px;
         }
         .btn-main:hover { opacity: 0.9; }
 
+        /* CÁC THIẾT LẬP GHI CHÚ VÀ DANH SÁCH */
         .note-item {
             background: var(--bg-color); border-left: 5px solid var(--primary-color);
-            padding: 15px; margin-bottom: 12px; border-radius: 6px; height: fit-content;
+            padding: 12px; margin-bottom: 12px; border-radius: 6px; height: fit-content;
         }
         
         .personal-note-item {
@@ -119,27 +124,27 @@
         
         #personal-notes-list { margin-top: 15px; max-height: 400px; overflow-y: auto; }
 
-        .note-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; font-size: 16px; color: var(--primary-color);}
+        .note-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; font-size: 15px; color: var(--primary-color);}
         .note-options { font-size: 12px; color: #d9534f; font-weight: bold; margin-bottom: 5px; }
         .note-content { font-size: 14px; margin-bottom: 10px; line-height: 1.4; white-space: pre-wrap; word-wrap: break-word; }
         
         .sub-note {
-            background-color: #00456b; color: #ffffff; padding: 10px 12px; margin-bottom: 12px;
-            border-radius: 6px; font-size: 14px; font-weight: bold; white-space: pre-wrap; border-left: 4px solid #ffc107; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            background-color: #00456b; color: #ffffff; padding: 8px 10px; margin-bottom: 10px;
+            border-radius: 6px; font-size: 13px; font-weight: bold; white-space: pre-wrap; border-left: 4px solid #ffc107; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .note-item.highlight { border-left: 8px solid #dc3545; background-color: #ffe0e0; animation: pulse-danger 1.5s infinite; }
         @keyframes pulse-danger { 0% { box-shadow: 0 0 0 0 rgba(220,53,69, 0.4); } 70% { box-shadow: 0 0 0 8px rgba(220,53,69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220,53,69, 0); } }
 
-        .warning-icon { display: none; margin-right: 5px; font-size: 18px; }
+        .warning-icon { display: none; margin-right: 5px; font-size: 16px; }
         .note-item.highlight .warning-icon { display: inline-block; animation: blink-icon 1s infinite; }
         @keyframes blink-icon { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
 
         .note-item.done { opacity: 0.5; border-left-color: #999; background: #eef1f4; animation: none; box-shadow: none;}
         .note-item.done .note-header, .note-item.done .note-options { color: #666; text-decoration: line-through; }
         
-        .note-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-        .btn-small { padding: 6px 12px; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; color: white; }
+        .note-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+        .btn-small { padding: 6px 10px; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; color: white; }
         .btn-done { background-color: #28a745; }
         .btn-restore { background-color: #ffc107; color: #000; }
         .btn-edit { background-color: #007bff; } 
@@ -200,7 +205,6 @@
         <div class="login-box">
             <h2 style="color: var(--primary-color); margin-top: 0;">Briefing VNA</h2>
             <div class="beta-tag">Phiên bản thử nghiệm</div>
-            <!-- Đã thêm thuộc tính autofocus và sự kiện oninput vào thẻ input -->
             <input type="password" id="app-password" placeholder="Nhập mật khẩu..." autofocus oninput="if(this.value === '140482') checkPassword();" onkeypress="if(event.key === 'Enter') checkPassword()">
             <button class="btn-main" onclick="checkPassword()" style="margin-top: 15px;">Đăng Nhập</button>
             <p id="login-error" style="color: #dc3545; display: none; font-size: 14px; font-weight: bold; margin-top: 15px; margin-bottom: 0;">Mật khẩu không đúng!</p>
@@ -215,19 +219,27 @@
             <div id="network-status">Đang kết nối cơ sở dữ liệu...</div>
         </div>
         
+        <!-- BẢNG TẠO BRIEFING -->
         <div class="card" id="form-card">
             <h3>Tạo Briefing Mới</h3>
             
-            <div class="form-group">
-                <label>Số hiệu chuyến bay (SHCB):</label>
-                <input type="text" id="flight-number" placeholder="VD: 210 hoặc VN210">
+            <!-- Xếp SHCB và Ngày bay lên cùng dòng -->
+            <div class="form-row">
+                <div>
+                    <label>SHCB:</label>
+                    <input type="text" id="flight-number" placeholder="VD: 210">
+                </div>
+                <div>
+                    <label>Ngày bay:</label>
+                    <input type="date" id="flight-date">
+                </div>
             </div>
             
             <div class="form-group">
                 <label>Giờ bay (ETD):</label>
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <select id="flight-time-hour" style="flex: 1; text-align: center;"></select>
-                    <span style="font-weight: bold; font-size: 18px;">:</span>
+                    <span style="font-weight: bold; font-size: 16px;">:</span>
                     <select id="flight-time-minute" style="flex: 1; text-align: center;">
                         <option value="00">00</option><option value="05">05</option><option value="10">10</option>
                         <option value="15">15</option><option value="20">20</option><option value="25">25</option>
@@ -237,18 +249,15 @@
                 </div>
             </div>
             
-            <div class="form-group">
-                <label>Ngày bay:</label>
-                <input type="date" id="flight-date">
-            </div>
-            
+            <!-- Giảm khung nội dung xuống còn 2 dòng -->
             <div class="form-group">
                 <label>Nội dung:</label>
-                <textarea id="note-content" rows="4" placeholder="Nội dung briefing..."></textarea>
+                <textarea id="note-content" rows="2" placeholder="Nội dung briefing..."></textarea>
             </div>
             
-            <div class="form-group">
-                <label>Nội dung cần take care:</label>
+            <!-- Xếp 3 cột để không tốn diện tích dọc -->
+            <div class="form-group" style="margin-bottom: 5px;">
+                <label>Cần take care:</label>
                 <div class="options-grid">
                     <label class="checkbox-label"><input type="checkbox" value="Checkin trước" class="take-care-option"> Checkin trước</label>
                     <label class="checkbox-label"><input type="checkbox" value="UPJ" class="take-care-option"> UPJ</label>
@@ -260,8 +269,8 @@
                 </div>
             </div>
             
-            <button class="btn-main" onclick="saveNote()" id="main-submit-btn" style="margin-top: 10px;">Lưu Briefing</button>
-            <button class="btn-main" onclick="cancelEdit()" id="cancel-edit-btn" style="display: none; background-color: #6c757d; margin-top: 10px;">Hủy Sửa</button>
+            <button class="btn-main" onclick="saveNote()" id="main-submit-btn">Lưu Briefing</button>
+            <button class="btn-main" onclick="cancelEdit()" id="cancel-edit-btn" style="display: none; background-color: #6c757d;">Hủy Sửa</button>
         </div>
 
         <div class="card" id="list-card">
@@ -277,11 +286,10 @@
             <h3>Ghi chú cá nhân</h3>
             
             <input type="text" id="search-personal-note" placeholder="🔍 Tìm kiếm nhanh ghi chú..." oninput="renderPersonalNotes()" style="margin-bottom: 10px; border-color: #17a2b8;">
-            
-            <textarea id="personal-note-input" rows="3" placeholder="Nhập ghi chú mới vào đây..."></textarea>
+            <textarea id="personal-note-input" rows="2" placeholder="Nhập ghi chú mới vào đây..."></textarea>
             
             <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button class="btn-main" onclick="savePersonalNote()" id="pnote-submit-btn" style="background-color: #17a2b8; margin-top: 0; flex: 1;">Thêm Ghi Chú</button>
+                <button class="btn-main" onclick="savePersonalNote()" id="pnote-submit-btn" style="background-color: #17a2b8; margin-top: 0; flex: 1;">Thêm</button>
                 <button class="btn-main" onclick="cancelPersonalNoteEdit()" id="pnote-cancel-btn" style="display: none; background-color: #6c757d; margin-top: 0; flex: 1;">Hủy Sửa</button>
             </div>
             
@@ -325,7 +333,6 @@
             document.getElementById('app-password').value = '';
             document.getElementById('login-error').style.display = 'none';
             clearTimeout(idleTimer);
-            // Đưa lại con trỏ chuột vào ô nhập mật khẩu khi bị đăng xuất
             setTimeout(() => document.getElementById('app-password').focus(), 100);
         }
 
@@ -333,7 +340,6 @@
             window.addEventListener(event, resetIdleTimer, true);
         });
 
-        // Kiểm tra đăng nhập và thiết lập trỏ chuột sẵn sàng ngay khi tải xong cấu trúc trang
         window.addEventListener('DOMContentLoaded', () => {
             if (sessionStorage.getItem('isAuthenticated') === 'true') {
                 document.getElementById('login-screen').style.display = 'none';
@@ -424,7 +430,7 @@
             document.getElementById('personal-note-input').value = note.content;
 
             const btnSubmit = document.getElementById('pnote-submit-btn');
-            btnSubmit.innerText = "Cập nhật Ghi Chú";
+            btnSubmit.innerText = "Cập nhật";
             btnSubmit.style.backgroundColor = "#ffc107";
             btnSubmit.style.color = "#000";
             
@@ -436,7 +442,7 @@
             document.getElementById('personal-note-input').value = '';
             
             const btnSubmit = document.getElementById('pnote-submit-btn');
-            btnSubmit.innerText = "Thêm Ghi Chú";
+            btnSubmit.innerText = "Thêm";
             btnSubmit.style.backgroundColor = "#17a2b8";
             btnSubmit.style.color = "white";
             
