@@ -286,6 +286,21 @@
 
         #personal-notes-list { margin-top: 15px; max-height: 400px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #b8c7d4 transparent; }
 
+
+        /* ---------- GIỚI HẠN 15 DÒNG + NÚT "ĐẦY ĐỦ" ---------- */
+        .clampable:not(.expanded) {
+            display: -webkit-box; -webkit-box-orient: vertical;
+            -webkit-line-clamp: 15; line-clamp: 15;
+            overflow: hidden;
+        }
+        .btn-expand {
+            display: none; background: none; border: none; padding: 2px 0;
+            margin: -4px 0 10px; font-family: inherit; font-size: 12.5px; font-weight: 700;
+            color: var(--vna-blue); cursor: pointer;
+        }
+        .btn-expand.show { display: block; }
+        .btn-expand:hover { color: var(--vna-deep); text-decoration: underline; }
+
         /* ---------- BỐ CỤC 3 CỘT TRÊN MÁY TÍNH ---------- */
         @media (min-width: 640px) {
             .header-section { grid-template-columns: 1fr auto; }
@@ -551,28 +566,37 @@
             return str;
         }
 
+        // Chống chèn mã: chuyển ký tự đặc biệt thành văn bản thuần trước khi đưa vào trang
+        function escapeHtml(str) {
+            return String(str === undefined || str === null ? '' : str)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+        // Mã định danh chỉ giữ chữ, số, gạch dưới, gạch ngang (dùng trong onclick)
+        function safeId(id) { return String(id === undefined || id === null ? '' : id).replace(/[^\w-]/g, ''); }
+
         // Hàm tô đậm đoạn văn bản trùng với từ khóa
         function highlightText(text, keyword) {
-            if (!keyword || !text) return text;
+            if (!keyword || !text) return escapeHtml(text);
             
             const normalizedText = removeVietnameseTones(text);
             const normalizedKeyword = removeVietnameseTones(keyword);
-            if (!normalizedKeyword) return text;
+            if (!normalizedKeyword) return escapeHtml(text);
 
             let result = '';
             let currentIndex = 0;
             let matchIndex = normalizedText.indexOf(normalizedKeyword, currentIndex);
 
             while (matchIndex !== -1) {
-                result += text.substring(currentIndex, matchIndex);
+                result += escapeHtml(text.substring(currentIndex, matchIndex));
                 // Bọc thẻ span có class highlight-text vào đúng vị trí từ khóa gốc
                 result += '<span class="highlight-text">' 
-                          + text.substring(matchIndex, matchIndex + normalizedKeyword.length) 
+                          + escapeHtml(text.substring(matchIndex, matchIndex + normalizedKeyword.length)) 
                           + '</span>';
                 currentIndex = matchIndex + normalizedKeyword.length;
                 matchIndex = normalizedText.indexOf(normalizedKeyword, currentIndex);
             }
-            result += text.substring(currentIndex);
+            result += escapeHtml(text.substring(currentIndex));
             return result;
         }
 
@@ -657,16 +681,17 @@
             filteredNotes.forEach(note => {
                 const noteEl = document.createElement('div');
                 noteEl.className = 'personal-note-item';
+                noteEl.dataset.noteKey = note.id;
                 
                 // Hiển thị nội dung đã được highlight
                 const highlightedContent = highlightText(note.content, keyword);
                 
                 noteEl.innerHTML = `
-                    <div class="p-note-date">📅 ${note.dateStr || ''}</div>
+                    <div class="p-note-date">📅 ${escapeHtml(note.dateStr)}</div>
                     <div class="p-note-content">${highlightedContent}</div>
                     <div class="note-actions">
-                        <button class="btn-small btn-edit" onclick="editPersonalNote('${note.id}')">Sửa</button>
-                        <button class="btn-small btn-delete" onclick="deletePersonalNote('${note.id}')">Xoá</button>
+                        <button class="btn-small btn-edit" onclick="editPersonalNote('${safeId(note.id)}')">Sửa</button>
+                        <button class="btn-small btn-delete" onclick="deletePersonalNote('${safeId(note.id)}')">Xoá</button>
                     </div>
                 `;
                 listDiv.appendChild(noteEl);
@@ -888,19 +913,19 @@
 
                 noteEl.innerHTML = `
                     <div class="note-header">
-                        <span><span class="warning-icon">🚨</span>✈️ ${note.flightNo} (ETD: ${note.time})</span>
+                        <span><span class="warning-icon">🚨</span>✈️ ${escapeHtml(note.flightNo)} (ETD: ${escapeHtml(note.time)})</span>
                     </div>
-                    ${opts.length > 0 ? `<div class="note-options">[ ${opts.join(' | ')} ]</div>` : ''}
-                    ${note.content ? `<div class="note-content">${note.content}</div>` : ''}
-                    ${note.subNote ? `<div class="sub-note">📌 ${note.subNote}</div>` : ''}
+                    ${opts.length > 0 ? `<div class="note-options">[ ${escapeHtml(opts.join(' | '))} ]</div>` : ''}
+                    ${note.content ? `<div class="note-content">${escapeHtml(note.content)}</div>` : ''}
+                    ${note.subNote ? `<div class="sub-note">📌 ${escapeHtml(note.subNote)}</div>` : ''}
                     <div class="note-actions">
                         ${note.isDone 
-                            ? `<button class="btn-small btn-restore" onclick="toggleStatus('${note.id}')">Khôi phục</button>` 
-                            : `<button class="btn-small btn-done" onclick="toggleStatus('${note.id}')">Xong</button>`
+                            ? `<button class="btn-small btn-restore" onclick="toggleStatus('${safeId(note.id)}')">Khôi phục</button>` 
+                            : `<button class="btn-small btn-done" onclick="toggleStatus('${safeId(note.id)}')">Xong</button>`
                         }
-                        <button class="btn-small btn-edit" onclick="editBriefing('${note.id}')">Sửa</button>
-                        <button class="btn-small btn-note-edit" onclick="editBriefingNote('${note.id}')">Note</button>
-                        <button class="btn-small btn-delete" onclick="deleteNote('${note.id}')">Xoá</button>
+                        <button class="btn-small btn-edit" onclick="editBriefing('${safeId(note.id)}')">Sửa</button>
+                        <button class="btn-small btn-note-edit" onclick="editBriefingNote('${safeId(note.id)}')">Note</button>
+                        <button class="btn-small btn-delete" onclick="deleteNote('${safeId(note.id)}')">Xoá</button>
                     </div>
                 `;
                 listDiv.appendChild(noteEl);
@@ -914,7 +939,10 @@
         }
 
         function deleteNote(id) {
-            if(confirm("Bạn có chắc chắn muốn xoá briefing này?")) dbRef.child(id).remove();
+            if(confirm("Bạn có chắc chắn muốn xoá briefing này?")) {
+                dbRef.child(id).remove();
+                personalDbRef.child("auto_" + id).remove();
+            }
         }
 
         function editBriefingNote(id) {
@@ -956,6 +984,9 @@
                     highlightThreshold = 120;
                 } else if (options.includes("Goshow") || options.includes("UPJ")) {
                     highlightThreshold = 60;
+                } else {
+                    // Chưa cài thời gian cảnh báo riêng: dùng mức chung 90 phút trước ETD
+                    highlightThreshold = 90;
                 }
 
                 if (highlightThreshold > 0 && diff <= highlightThreshold && diff >= -120) {
@@ -965,6 +996,66 @@
                 }
             });
         }
+    </script>
+    <script>
+        // ===== Giới hạn hiển thị 15 dòng + nút "Đầy đủ" cho Danh sách công việc và Ghi chú cá nhân =====
+        (function () {
+            const expanded = new Set(); // nhớ ghi chú nào đang mở rộng, vì danh sách được dựng lại mỗi lần dữ liệu đổi
+
+            function keyOf(el) {
+                const note = el.closest('.note-item');
+                if (note) return 'b:' + note.id;
+                const pnote = el.closest('.personal-note-item');
+                return pnote ? 'p:' + (pnote.dataset.noteKey || '') : '';
+            }
+
+            function update(el) {
+                const btn = el.nextElementSibling;
+                if (!btn || !btn.classList.contains('btn-expand')) return;
+                const isExpanded = el.classList.contains('expanded');
+                const overflow = !isExpanded && el.scrollHeight > el.clientHeight + 1;
+                btn.classList.toggle('show', isExpanded || overflow);
+                btn.textContent = isExpanded ? 'Thu gọn' : 'Đầy đủ';
+            }
+
+            // Tự cập nhật khi đổi kích thước cửa sổ hoặc khi phần mềm vừa được hiện ra sau đăng nhập
+            const sizeObserver = new ResizeObserver(entries => entries.forEach(e => update(e.target)));
+
+            function enhance(el) {
+                if (el.dataset.clampReady) return;
+                el.dataset.clampReady = '1';
+                el.classList.add('clampable');
+                const key = keyOf(el);
+                if (key && expanded.has(key)) el.classList.add('expanded');
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn-expand';
+                el.insertAdjacentElement('afterend', btn);
+                sizeObserver.observe(el);
+                update(el);
+            }
+
+            function scan(list) {
+                list.querySelectorAll('.note-content, .p-note-content').forEach(enhance);
+            }
+
+            ['notes-list', 'personal-notes-list'].forEach(id => {
+                const list = document.getElementById(id);
+                scan(list);
+                new MutationObserver(() => scan(list)).observe(list, { childList: true, subtree: true });
+            });
+
+            document.addEventListener('click', e => {
+                const btn = e.target.closest('.btn-expand');
+                if (!btn) return;
+                const el = btn.previousElementSibling;
+                if (!el) return;
+                const key = keyOf(el);
+                const nowExpanded = el.classList.toggle('expanded');
+                if (key) { if (nowExpanded) expanded.add(key); else expanded.delete(key); }
+                update(el);
+            });
+        })();
     </script>
 </body>
 </html>
