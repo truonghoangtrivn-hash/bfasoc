@@ -125,6 +125,7 @@
             font-size: 15px; font-weight: 600; line-height: 1.3;
             color: var(--vna-deep);
             padding-left: 14px; border-left: 2px solid var(--line-color);
+            white-space: nowrap;
         }
         .header-info {
             display: flex; flex-wrap: wrap; align-items: center;
@@ -139,6 +140,12 @@
             background: var(--vna-blue-tint);
             padding: 6px 16px; border-radius: 8px;
         }
+        .time-sync {
+            text-align: center; font-size: 12px; font-weight: 600;
+            color: var(--vna-deep); background: var(--vna-blue-tint);
+            padding: 6px 12px; border-radius: 999px;
+        }
+        .time-sync.warn { color: #7a4b00; background: #fff1d6; }
         #network-status {
             text-align: center; font-size: 12px; font-weight: 600;
             color: var(--ok);
@@ -192,7 +199,12 @@
         }
         .search-input { margin-bottom: 10px; }
 
+        .flight-hint { font-size: 12px; font-weight: 600; color: var(--vna-blue); margin-top: 6px; }
+        .flight-hint:empty { display: none; }
+
         .options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 6px; margin-top: 6px; }
+        .take-care-other { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; }
+        .take-care-other input[type="text"] { flex: 1; min-width: 0; padding: 6px 10px; font-size: 13px; }
 
         .checkbox-label {
             display: flex; align-items: center; font-size: 13px; cursor: pointer;
@@ -239,14 +251,25 @@
             display: flex; justify-content: space-between; font-weight: 700;
             margin-bottom: 6px; font-size: 15px; color: var(--vna-deep);
         }
+        .note-created { font-size: 12px; color: var(--muted-color); margin: -2px 0 6px; }
         .note-options { font-size: 12.5px; color: var(--vna-gold-dark); font-weight: 700; margin-bottom: 6px; }
         .note-content { font-size: 14px; margin-bottom: 10px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
 
         .sub-note {
-            background-color: var(--vna-deep); color: #ffffff; padding: 8px 12px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+            background-color: var(--vna-deep); color: #ffffff; padding: 8px 12px; margin-bottom: 8px;
             border-radius: 6px; font-size: 13px; font-weight: 600; white-space: pre-wrap;
             border-left: 4px solid var(--vna-gold); box-shadow: 0 2px 4px rgba(0, 38, 66, 0.2);
         }
+
+        .sub-note-text { flex: 1; min-width: 0; word-wrap: break-word; }
+        .sub-note-meta { display: flex; align-items: center; gap: 2px; flex: none; white-space: nowrap; }
+        .sub-note-time { font-size: 11px; font-weight: 400; color: rgba(255, 255, 255, 0.65); margin-right: 4px; }
+        .sub-note-btn {
+            background: none; border: none; color: rgba(255, 255, 255, 0.7); cursor: pointer;
+            font-size: 13px; padding: 0 4px; font-family: inherit; line-height: 1;
+        }
+        .sub-note-btn:hover { color: #fff; }
 
         /* Cảnh báo sắp đến giờ: giữ màu đỏ vì đây là tín hiệu khẩn */
         .note-item.highlight { border-left: 8px solid #c62828; background-color: #fdeaea; border-color: #f2b8b8; animation: pulse-danger 1.5s infinite; }
@@ -303,7 +326,7 @@
 
         /* ---------- BỐ CỤC 3 CỘT TRÊN MÁY TÍNH ---------- */
         @media (min-width: 640px) {
-            .header-section { grid-template-columns: 1fr auto; }
+            .header-section { grid-template-columns: auto minmax(0, 1fr); column-gap: 24px; }
             .header-info { justify-content: flex-end; }
         }
 
@@ -382,6 +405,7 @@
             </div>
             <div class="header-info">
                 <div id="clock">Đang tải đồng hồ...</div>
+                <div id="time-sync" class="time-sync warn">⚠️ Chưa đồng bộ giờ chuẩn</div>
                 <div class="beta-tag">Phiên bản thử nghiệm</div>
                 <div id="network-status">Đang kết nối cơ sở dữ liệu...</div>
             </div>
@@ -390,6 +414,14 @@
         <!-- BẢNG TẠO BRIEFING -->
         <div class="card" id="form-card">
             <h3>Tạo Briefing Mới</h3>
+
+            <div class="form-group">
+                <label for="flight-direction">Loại chuyến bay:</label>
+                <select id="flight-direction">
+                    <option value="dep">Chuyến đi (ETD)</option>
+                    <option value="arr">Chuyến đến SGN (ETA)</option>
+                </select>
+            </div>
 
             <div class="form-row">
                 <div>
@@ -403,7 +435,7 @@
             </div>
 
             <div class="form-group">
-                <label>Giờ bay (ETD):</label>
+                <label id="time-label">Giờ bay (ETD):</label>
                 <div class="time-row">
                     <select id="flight-time-hour"></select>
                     <span class="time-sep">:</span>
@@ -414,6 +446,7 @@
                         <option value="45">45</option><option value="50">50</option><option value="55">55</option>
                     </select>
                 </div>
+                <div id="flight-hint" class="flight-hint"></div>
             </div>
 
             <div class="form-group">
@@ -423,15 +456,7 @@
 
             <div class="form-group tight">
                 <label>Cần take care:</label>
-                <div class="options-grid">
-                    <label class="checkbox-label"><input type="checkbox" value="Checkin trước" class="take-care-option"> Checkin trước</label>
-                    <label class="checkbox-label"><input type="checkbox" value="UPJ" class="take-care-option"> UPJ</label>
-                    <label class="checkbox-label"><input type="checkbox" value="UPW" class="take-care-option"> UPW</label>
-                    <label class="checkbox-label"><input type="checkbox" value="Miễn tháo giày" class="take-care-option"> Miễn tháo giày</label>
-                    <label class="checkbox-label"><input type="checkbox" value="Goshow" class="take-care-option"> Goshow</label>
-                    <label class="checkbox-label"><input type="checkbox" value="Take care IMMI/ANSC" class="take-care-option"> IMMI/ANSC</label>
-                    <label class="checkbox-label"><input type="checkbox" value="Khác" class="take-care-option"> Khác</label>
-                </div>
+                <div class="options-grid" id="take-care-grid"></div>
             </div>
 
             <button class="btn-main" onclick="saveNote()" id="main-submit-btn">Lưu Briefing</button>
@@ -538,6 +563,72 @@
         let editingId = null;
         let editingPersonalNoteId = null;
 
+        // ==========================================
+        // ĐỒNG HỒ CHUẨN: giờ máy chủ Firebase (trực tuyến) + múi giờ Việt Nam (UTC+7)
+        // Mọi chỗ cần "bây giờ" đều gọi getNow()/trueNowMs() thay vì lấy giờ thiết bị.
+        // ==========================================
+        let serverOffsetMs = 0;      // độ lệch = giờ máy chủ - giờ thiết bị (lúc đồng bộ)
+        let timeSynced = false;      // đã nhận được giờ chuẩn từ máy chủ chưa
+        let VN_TZ_FORMAT = null;
+        try {
+            VN_TZ_FORMAT = new Intl.DateTimeFormat('en-GB', {
+                timeZone: 'Asia/Ho_Chi_Minh', hourCycle: 'h23',
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            });
+        } catch (e) { VN_TZ_FORMAT = null; }
+
+        // Thời điểm thực (ms, UTC) đã hiệu chỉnh theo máy chủ
+        function trueNowMs() { return Date.now() + serverOffsetMs; }
+        // Đối tượng Date mà getHours()/getDate()... trả về đúng giờ-ngày Việt Nam, bất kể múi giờ thiết bị
+        function vnDate(ms) {
+            if (!VN_TZ_FORMAT) return new Date(ms);
+            const p = {};
+            VN_TZ_FORMAT.formatToParts(new Date(ms)).forEach(x => { p[x.type] = x.value; });
+            return new Date(+p.year, +p.month - 1, +p.day, (+p.hour) % 24, +p.minute, +p.second, ((ms % 1000) + 1000) % 1000);
+        }
+        function getNow() { return vnDate(trueNowMs()); }
+
+        function formatOffset(ms) {
+            const total = Math.round(Math.abs(ms) / 1000);
+            const h = Math.floor(total / 3600), m = Math.floor((total % 3600) / 60), sec = total % 60;
+            if (h > 0) return `${h} giờ${m ? ' ' + m + ' phút' : ''}`;
+            if (m > 0) return `${m} phút${sec ? ' ' + sec + ' giây' : ''}`;
+            return `${sec} giây`;
+        }
+        function updateTimeSyncUI() {
+            const el = document.getElementById('time-sync');
+            if (!el) return;
+            let text, warn = false;
+            if (!timeSynced) {
+                text = '⚠️ Chưa đồng bộ giờ chuẩn · đang dùng giờ thiết bị';
+                warn = true;
+            } else {
+                text = '🕒 Đã đồng bộ giờ chuẩn trực tuyến';
+                if (Math.abs(serverOffsetMs) >= 30000) {
+                    text += ` · đồng hồ thiết bị ${serverOffsetMs < 0 ? 'nhanh' : 'chậm'} ${formatOffset(serverOffsetMs)}`;
+                    warn = true;
+                }
+            }
+            if (el.innerText !== text) el.innerText = text;
+            el.classList.toggle('warn', warn);
+        }
+
+        // Phát hiện đồng hồ thiết bị bị chỉnh tay / máy vừa thức dậy: kết nối lại để máy chủ tính lại độ lệch
+        let lastTickWall = Date.now(), lastTickPerf = performance.now(), lastResync = 0;
+        function detectClockJump() {
+            const w = Date.now(), p = performance.now();
+            const drift = (w - lastTickWall) - (p - lastTickPerf);
+            lastTickWall = w; lastTickPerf = p;
+            if (Math.abs(drift) > 5000 && w - lastResync > 30000) {
+                lastResync = w;
+                if (typeof database.goOffline === 'function' && typeof database.goOnline === 'function') {
+                    database.goOffline();
+                    database.goOnline();
+                }
+            }
+        }
+
         dbRef.on('value', (snapshot) => {
             const data = snapshot.val();
             notes = data ? Object.values(data) : [];
@@ -572,6 +663,17 @@
                 .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
+        // Giờ khởi tạo: ưu tiên trường createdAt; dữ liệu cũ chưa có thì lấy từ id (id được tạo bằng trueNowMs())
+        function getCreatedAt(item) {
+            if (!item) return 0;
+            const saved = Number(item.createdAt);
+            if (saved > 0) return saved;
+            const fromId = Number(String(item.id || '').replace('auto_', ''));
+            return fromId > 946684800000 ? fromId : 0;
+        }
+        function pad2(n) { return String(n).padStart(2, '0'); }
+        function formatTime(ts) { const d = vnDate(ts); return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`; }
+        function formatDate(ts) { const d = vnDate(ts); return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`; }
         // Mã định danh chỉ giữ chữ, số, gạch dưới, gạch ngang (dùng trong onclick)
         function safeId(id) { return String(id === undefined || id === null ? '' : id).replace(/[^\w-]/g, ''); }
 
@@ -604,7 +706,7 @@
             const content = document.getElementById('personal-note-input').value.trim();
             if (!content) return;
 
-            const now = new Date();
+            const now = getNow();
             const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
 
             if (editingPersonalNoteId) {
@@ -614,8 +716,8 @@
                     dateStr: dateStr 
                 });
             } else {
-                const id = Date.now().toString();
-                const newNote = { id, content, dateStr };
+                const id = trueNowMs().toString();
+                const newNote = { id, content, dateStr, createdAt: Number(id) };
                 personalDbRef.child(id).set(newNote); 
             }
             resetPersonalNoteForm();
@@ -685,9 +787,15 @@
                 
                 // Hiển thị nội dung đã được highlight
                 const highlightedContent = highlightText(note.content, keyword);
+
+                // Giờ khởi tạo (thêm ngày nếu khác ngày đang hiển thị bên cạnh)
+                const created = getCreatedAt(note);
+                const createdText = created
+                    ? ` · 🕒 Khởi tạo ${formatTime(created)}${formatDate(created) !== note.dateStr ? ' ' + formatDate(created) : ''}`
+                    : '';
                 
                 noteEl.innerHTML = `
-                    <div class="p-note-date">📅 ${escapeHtml(note.dateStr)}</div>
+                    <div class="p-note-date">📅 ${escapeHtml(note.dateStr)}${escapeHtml(createdText)}</div>
                     <div class="p-note-content">${highlightedContent}</div>
                     <div class="note-actions">
                         <button class="btn-small btn-edit" onclick="editPersonalNote('${safeId(note.id)}')">Sửa</button>
@@ -715,6 +823,70 @@
             "5X67": "04:45", "BL6002": "05:00", "VN106": "05:45", "VN1366": "05:45", "VN206": "06:00", "VN1392": "06:00", "VN1464": "06:20", "0V8081": "06:20", "MU2840": "06:20", "BL6420": "06:40", "VN110": "06:45", "VN1404": "06:55", "VN3308": "07:00", "VN240": "07:00", "BL6170": "07:00", "VN1340": "07:05", "CX786": "07:10", "VN524": "07:20", "VN1660": "07:25", "VN1176": "07:35", "FX6091": "07:40", "VN3406": "08:00", "VN3500": "08:00", "VN112": "08:00", "VN208": "08:00", "VN1823": "08:05", "VN3837": "08:20", "VN3819": "08:20", "JL750": "08:20", "0V8055": "08:30", "VN601": "08:40", "0V8057": "08:40", "VN3530": "09:00", "VN244": "09:00", "VN402": "09:05", "0V8085": "09:10", "VN651": "09:10", "VN51": "09:30", "0V8067": "09:30", "VN3940": "09:40", "VN631": "09:50", "VN122": "10:00", "VN210": "10:00", "BL6200": "10:05", "TG551": "10:05", "VN502": "10:10", "VN641": "10:10", "VN1382": "10:20", "VN1272": "10:25", "VN1264": "10:40", "SU293": "10:55", "VN3580": "11:00", "VN126": "11:00", "VN246": "11:00", "MH751": "11:00", "VN1370": "11:05", "VN1825": "11:10", "VN3562": "11:15", "VN7184": "11:20", "VN1276": "11:25", "0V8346": "11:25", "VN605": "11:30", "JX712": "11:30", "BL6036": "11:45", "VN3504": "11:55", "VN3825": "12:00", "VN212": "12:00", "0V8089": "12:10", "VN3419": "12:20", "BR392": "12:50", "VN3542": "12:55", "VN3855": "13:00", "VN248": "13:00", "VN1344": "13:05", "VN1827": "13:05", "00MSZSZ": "13:30", "BL6440": "13:35", "VN594": "13:35", "0V8063": "13:35", "VN132": "13:45", "VN7382": "13:45", "VN1394": "13:50", "00TBJ23": "14:00", "VN3402": "14:05", "VN7388": "14:05", "DR5052": "14:05", "VN655": "14:25", "VN3040": "14:30", "VN214": "14:30", "VN1422": "14:45", "VN1266": "14:50", "VN250": "15:00", "0V8087": "15:15", "VN791": "15:20", "VN679": "15:25", "0V8069": "15:30", "VN134": "15:30", "VN1829": "15:30", "VN1374": "15:35", "BR396": "15:45", "VN3502": "15:55", "VN3637": "15:55", "VN1468": "15:55", "VN3821": "16:00", "VN216": "16:00", "VN621": "16:00", "VN920": "16:05", "BL6160": "16:05", "VN570": "16:30", "MH759": "16:40", "VN140": "16:45", "VN607": "16:50", "VN254": "17:00", "VN657": "17:00", "VN813": "17:15", "VN1386": "17:30", "VN98": "17:40", "VN3582": "17:50", "VN580": "17:50", "VN1186": "17:55", "VN218": "18:00", "JX714": "18:05", "VN1414": "18:15", "VN609": "18:20", "VN3851": "18:30", "VN977": "18:35", "VN142": "18:55", "VN1268": "18:55", "9C7348": "18:55", "VN258": "19:00", "BL6150": "19:10", "T5654": "19:20", "VN3560": "19:35", "VN146": "19:35", "VN3647": "19:40", "VN220": "20:00", "VN3518": "20:10", "TG557": "20:10", "VN1835": "20:30", "8M453": "20:30", "VN773": "20:45", "AI2389": "20:55", "VN260": "21:00", "VN3083": "21:25", "VN781": "21:25", "FX6067": "21:45", "VN224": "22:00", "T5694": "22:00", "VN3496": "22:45", "VN11": "22:50", "VN270": "23:00", "CA408": "23:20", "JL70": "23:30", "VN408": "23:45", "VN3400": "23:50", "VN320": "00:10", "VN306": "00:20", "VN516": "00:35", "5J752": "00:50", "VN422": "01:10", "VN5422": "01:45", "BR382": "01:50", "SC4646": "02:05", "VN3044": "02:25", "VN3558": "02:35", "9C7546": "02:55", "MU870": "03:10", "VN3522": "03:35", "VN1380": "05:50", "VN1180": "05:55", "VN7276": "06:05", "0V8059": "06:40", "WW602": "07:10", "VN3853": "08:30", "VN118": "09:05", "BL6103": "10:05", "QV516": "12:00", "0V8097": "14:00", "0V8093": "15:15", "VN136": "16:00", "VN252": "16:40", "VN7264": "16:45", "0V8440": "16:50", "VN7024": "17:15", "9C7558": "18:55", "MH767": "19:40", "VN1376": "20:10", "VN256": "20:30", "VN1378": "21:10", "VN648": "23:25", "OQ2396": "00:40", "PR588": "01:55", "CZ6096": "02:35", "GY704": "04:25", "CA904": "05:10", "VN582": "07:45", "00CBA35": "09:00", "VN1342": "09:05", "AF253": "09:25", "KE342": "11:15", "VN3942": "15:40", "00T7OLLIE": "16:00", "VN979": "18:00", "VN3550": "18:05", "MU9634": "19:10", "VN671": "19:45", "00TE426": "20:00", "5J754": "21:50", "VN31": "23:00", "VN39": "23:45", "VN342": "00:00", "CZ8318": "02:05", "QW926": "02:10", "CX3346": "02:15", "VN7204": "06:25", "00VI8119": "06:30", "VN7416": "14:05", "VN7246": "20:00", "VV953": "00:45", "VN3472": "01:55", "MU872": "03:35", "CX744": "06:55", "CI5878": "09:10", "00MJJ992": "10:00", "00QQE503": "15:30", "T5692": "22:00", "VN350": "00:35", "SC8074": "01:30", "T5652": "03:30", "VN7224": "08:00", "KR730": "14:00", "VN148": "20:55", "0V8073": "05:40", "VN7210": "06:25", "00T7DNS": "11:00", "KE8352": "11:05", "00N501GM": "15:00", "FX6065": "20:55", "VN33": "23:35", "0V8031": "05:25", "VN7342": "16:30", "0V8420": "07:50", "0V8077": "08:40", "VN7346": "12:10", "VN7340": "12:30", "00N919PE": "13:00", "002CBA35": "13:00", "0V8091": "14:30", "5X168": "20:40", "VN7042": "21:30", "TH237": "23:40", "VN7214": "05:00", "3Y2210": "05:45", "VN7108": "05:50", "PR592": "08:45", "0V8412": "10:30", "VN7244": "14:10", "VN7252": "14:35", "00VHLEF": "06:30", "VN7106": "22:30", "CO9632": "14:30", "0V8001": "20:00", "CI6652": "23:55", "00VI8079": "06:30", "KE390": "11:25", "VN7230": "12:05", "CI5886": "18:50"
         };
 
+        // Chuyến bay ĐẾN SGN: "SHCB": [[giờ đến (STA), chặng bay], ...]
+        // Một số SHCB có nhiều giờ đến khác nhau nên lưu dạng danh sách; ký hiệu "+" (sau nửa đêm) đã được bỏ.
+        const arrivalData = {
+            "VN38": [["04:25","CPH-SGN"]], "VN99": [["04:30","SFO-SGN"]], "MU2839": [["04:40","NKG-SGN"]], "JL79": [["05:25","HND-SGN"]],
+            "FX5194": [["05:40","CAN-SGN"]], "VN790": [["05:55","PER-SGN"]], "VN976": [["06:05","DEL-SGN"]], "VN30": [["06:25","FRA-SGN"]],
+            "VN205": [["07:10","HAN-SGN"]], "AF258": [["07:25","CDG-SGN"]], "VN3852": [["07:50","KTI-SGN"]], "VN243": [["08:10","HAN-SGN"]],
+            "VN1381": [["08:15","DLI-SGN"]], "0V8058": [["08:55","VCS-SGN"]], "VN1393": [["09:00","UIH-SGN"]], "TG550": [["09:05","BKK-SGN"]],
+            "VN207": [["09:10","HAN-SGN"]], "00QQE764": [["09:10","SIN-SGN"]], "VN107": [["09:15","DAD-SGN"]], "VN1367": [["09:20","HUI-SGN"]],
+            "VN7109": [["09:20","DAD-SGN"]], "BL6171": [["09:25","DLI-SGN"]], "VN581": [["09:30","KHH-SGN"]], "VN3581": [["09:40","TPE-SGN"]],
+            "VN1341": [["09:45","CXR-SGN"]], "VN1465": [["09:45","VCL-SGN"]], "VN3563": [["10:05","HKG-SGN"]], "BR395": [["10:05","TPE-SGN"]],
+            "VN109": [["10:15","DAD-SGN"]], "JX711": [["10:15","TPE-SGN"]], "VN1661": [["10:20","TBB-SGN"]], "VN571": [["10:20","TPE-SGN"]],
+            "VN3505": [["10:40","CAN-SGN"]], "VN245": [["10:40","HAN-SGN"]], "VN1405": [["10:45","VDH-SGN"]], "VN1822": [["10:45","PQC-SGN"]],
+            "0V8054": [["10:50","VCS-SGN"]], "VN3220": [["10:55","SIN-SGN"]], "BL6421": [["11:05","VII-SGN"]], "VN3818": [["11:10","SAI-SGN"]],
+            "VN209": [["11:10","HAN-SGN"]], "VN3836": [["11:30","KOS-SGN"]], "VN7417": [["11:30","BMV-SGN"]], "0V8084": [["11:30","VCS-SGN"]],
+            "VN113": [["11:30","DAD-SGN"]], "0V8421": [["11:35","PXU-SGN"]], "VN7341": [["11:40","CXR-SGN"]], "BR391": [["11:40","TPE-SGN"]],
+            "VN3543": [["12:00","PVG-SGN"]], "0V8066": [["12:00","VCS-SGN"]], "VN247": [["12:10","HAN-SGN"]], "VN1343": [["12:25","CXR-SGN"]],
+            "00SAV298": [["12:30","PQC-SGN"]], "VN3403": [["12:35","ICN-SGN"]], "VN517": [["12:35","PKX-SGN"]], "VN1177": [["12:35","HPH-SGN"]],
+            "VN1383": [["12:45","DLI-SGN"]], "VN423": [["12:55","PUS-SGN"]], "VN600": [["13:05","BKK-SGN"]], "VN211": [["13:10","HAN-SGN"]],
+            "VN1824": [["13:15","PQC-SGN"]], "VN119": [["13:20","DAD-SGN"]], "VN321": [["13:25","KIX-SGN"]], "VN3041": [["13:30","SZX-SGN"]],
+            "VN307": [["13:30","NRT-SGN"]], "VN50": [["13:35","LHR-SGN"]], "VN409": [["13:45","ICN-SGN"]], "VN5423": [["13:50","PUS-SGN"]],
+            "0V8090": [["13:55","VCS-SGN"]], "VN251": [["14:10","HAN-SGN"]], "VN3943": [["14:25","MNL-SGN"]], "VN650": [["14:25","SIN-SGN"]],
+            "VN127": [["14:30","DAD-SGN"]], "VN3418": [["14:35","SIN-SGN"]], "VN1371": [["14:35","HUI-SGN"]], "VN3503": [["14:40","CAN-SGN"]],
+            "0V8088": [["14:40","VCS-SGN"]], "0V8062": [["14:45","VCS-SGN"]], "VN1265": [["14:55","VII-SGN"]],
+            "VN7347": [["14:55","CXR-SGN"],["12:20","CXR-SGN"]], "VN583": [["15:00","KHH-SGN"]], "VN129": [["15:05","DAD-SGN"]],
+            "VN213": [["15:10","HAN-SGN"]], "VN921": [["15:15","KTI-SGN"]], "BL6037": [["15:25","DAD-SGN"]],
+            "VN1273": [["15:30","THD-SGN"],["15:00","THD-SGN"]], "MH758": [["15:40","KUL-SGN"]], "VN1826": [["15:45","PQC-SGN"]],
+            "VN1277": [["16:00","THD-SGN"]], "VN604": [["16:10","BKK-SGN"]], "VN253": [["16:10","HAN-SGN"]], "VN780": [["16:15","MEL-SGN"]],
+            "VN772": [["16:15","SYD-SGN"]], "VN3583": [["16:20","TPE-SGN"]], "0V8096": [["16:20","VCS-SGN"]], "VN7389": [["16:35","DLI-SGN"]],
+            "VN1345": [["16:40","CXR-SGN"]], "VN1395": [["16:50","UIH-SGN"]], "VN3851": [["16:55","XMN-SGN"]], "VN7185": [["16:55","HPH-SGN"]],
+            "VN133": [["16:55","DAD-SGN"]], "JX713": [["16:55","TPE-SGN"]], "VN215": [["17:10","HAN-SGN"]], "VN630": [["17:20","CGK-SGN"]],
+            "VN503": [["17:20","CAN-SGN"]], "CX769": [["17:20","HKG-SGN"]], "0V8092": [["17:35","VCS-SGN"]], "0V8086": [["17:35","VCS-SGN"]],
+            "VN1423": [["17:40","PXU-SGN"]], "0V8068": [["17:50","VCS-SGN"]], "VN3850": [["17:55","KTI-SGN"]], "9C7347": [["17:55","CAN-SGN"]],
+            "VN273": [["18:10","HAN-SGN"]], "MU9633": [["18:10","KMG-SGN"]], "VN1828": [["18:20","PQC-SGN"]], "VN3632": [["18:25","SIN-SGN"]],
+            "BL6441": [["18:30","HPH-SGN"]], "VN525": [["18:30","PVG-SGN"]], "VN1267": [["18:30","VII-SGN"]], "VN3561": [["18:35","HKG-SGN"]],
+            "MH766": [["18:35","KUL-SGN"]], "VN640": [["18:40","DPS-SGN"]], "VN135": [["19:00","DAD-SGN"]], "TG556": [["19:05","BKK-SGN"]],
+            "VN217": [["19:10","HAN-SGN"]], "VN1469": [["19:20","VCL-SGN"]], "VN137": [["19:30","DAD-SGN"]], "VN654": [["19:40","SIN-SGN"]],
+            "VN257": [["19:45","HAN-SGN"]], "BL6161": [["19:50","HUI-SGN"]], "VN1387": [["19:55","DLI-SGN"]], "AI2388": [["19:55","DEL-SGN"]],
+            "VN259": [["20:10","HAN-SGN"]], "FX6067": [["20:15","SIN-SGN"]], "0V8441": [["20:20","TBB-SGN"]], "VN595": [["20:25","HKG-SGN"]],
+            "VN812": [["20:25","SAI-SGN"]], "VN141": [["20:30","DAD-SGN"]], "VN678": [["20:35","KUL-SGN"]], "VN1415": [["20:40","BMV-SGN"]],
+            "VN7025": [["20:45","HPH-SGN"],["22:10","HPH-SGN"]], "5J753": [["21:05","MNL-SGN"]], "VN219": [["21:10","HAN-SGN"]],
+            "VN606": [["21:15","BKK-SGN"]], "VN403": [["21:20","ICN-SGN"]], "CA407": [["21:20","CKG-SGN"]], "VN3495": [["21:55","HND-SGN"]],
+            "CI6651": [["21:55","BKK-SGN"]], "VN3501": [["22:00","CAN-SGN"]], "BR381": [["22:00","TPE-SGN"]], "JL759": [["22:00","NRT-SGN"]],
+            "BL6151": [["22:05","CXR-SGN"]], "VN3856": [["22:10","KTI-SGN"]], "VN3401": [["22:10","ICN-SGN"]], "VN263": [["22:10","HAN-SGN"]],
+            "VN3824": [["22:25","SAI-SGN"]], "VN143": [["22:40","DAD-SGN"]], "VN1187": [["22:40","HPH-SGN"]], "VN656": [["22:40","SIN-SGN"]],
+            "VN265": [["22:45","HAN-SGN"]], "VN3531": [["23:00","XMN-SGN"]], "VN608": [["23:00","BKK-SGN"]], "VN3407": [["23:15","ICN-SGN"]],
+            "VN1269": [["23:15","VII-SGN"]], "VN1834": [["23:15","PQC-SGN"]], "VN221": [["23:40","HAN-SGN"]], "VN1377": [["23:45","HUI-SGN"]],
+            "5J751": [["00:05","MNL-SGN"]], "VN267": [["00:10","HAN-SGN"]], "VN3309": [["00:15","NRT-SGN"],["23:45","NRT-SGN"]],
+            "CX721": [["00:20","HKG-SGN"]], "SC8073": [["00:30","TNA-SGN"]], "CA903": [["00:40","PEK-SGN"]], "MU869": [["01:00","HGH-SGN"]],
+            "CZ8317": [["01:05","WUH-SGN"]], "BL6025": [["01:10","HAN-SGN"]], "VN3045": [["01:25","SZX-SGN"]], "VN3559": [["01:35","CAN-SGN"]],
+            "VN3523": [["01:35","PVG-SGN"]], "VN10": [["04:50","CDG-SGN"]], "VN978": [["06:00","BOM-SGN"]], "0V8032": [["07:40","VCS-SGN"]],
+            "VN3941": [["08:30","MNL-SGN"]], "0V8080": [["08:35","VCS-SGN"]], "VN670": [["08:50","CMB-SGN"]], "SU292": [["09:00","SVO-SGN"]],
+            "00N55999": [["09:30","PQC-SGN"]], "VN7275": [["10:40","THD-SGN"]], "0V8346": [["10:50","CXR-SGN"]], "0V8056": [["11:05","VCS-SGN"]],
+            "VN343": [["12:40","NGO-SGN"]], "BL6201": [["12:40","BMV-SGN"]], "DR5051": [["13:10","LJG-SGN"]], "JG2987": [["13:30","BAR-SGN"]],
+            "WW612": [["16:20","KCH-SGN"]], "VN3082": [["17:05","IST-SGN"]], "VN7207": [["17:45","HAN-SGN"]], "VN3519": [["18:10","KMG-SGN"]],
+            "VN1375": [["19:15","HUI-SGN"]], "8M452": [["19:30","RGN-SGN"]], "VN620": [["20:45","HKT-SGN"]], "VN33": [["22:10","MUC-SGN"]],
+            "VN7205": [["23:55","HAN-SGN"]], "SC4645": [["00:50","TAO-SGN"]], "3Y2211": [["01:45","KNO-SGN"]], "GY703": [["02:05","KWE-SGN"]],
+            "VN1181": [["10:40","HPH-SGN"]], "BL6104": [["12:55","PQC-SGN"]], "0V8413": [["13:30","BMV-SGN"]], "0V8347": [["14:50","CXR-SGN"]],
+            "9C7557": [["17:55","PVG-SGN"]], "OQ2395": [["23:40","CKG-SGN"]], "PR587": [["00:55","CEB-SGN"]], "VN32": [["04:40","MUC-SGN"]],
+            "0V8076": [["11:15","VCS-SGN"]], "VN351": [["13:10","FUK-SGN"]], "VN7203": [["12:50","HAN-SGN"]], "VN98": [["16:15","SFO-SGN"]],
+            "VN7041": [["18:50","DAD-SGN"]], "VN7393": [["20:45","UIH-SGN"]], "VN145": [["22:05","DAD-SGN"]], "PR591": [["07:35","MNL-SGN"]],
+            "0V8072": [["07:55","VCS-SGN"]], "KE389": [["09:25","KUL-SGN"]], "MH750": [["10:00","KUL-SGN"]], "VN7189": [["21:45","HPH-SGN"]],
+            "VN3473": [["00:55","CEB-SGN"]], "QW925": [["01:10","TAO-SGN"]], "CZ6095": [["01:35","PVG-SGN"]]
+        };
+
         function getShiftDate(dateStr, timeStr) {
             if (timeStr <= "02:00") {
                 const parts = dateStr.split('-');
@@ -736,7 +908,8 @@
         }
 
         function updateClock() {
-            const now = new Date();
+            detectClockJump();
+            const now = getNow();
             const h = String(now.getHours()).padStart(2, '0');
             const min = String(now.getMinutes()).padStart(2, '0');
             const sec = String(now.getSeconds()).padStart(2, '0');
@@ -752,29 +925,176 @@
         }
         setInterval(updateClock, 1000);
 
-        const today = new Date().toLocaleDateString('en-CA');
+        const today = getNow().toLocaleDateString('en-CA');
         document.getElementById('flight-date').value = today;
         document.getElementById('filter-date').value = today;
 
-        document.getElementById('flight-number').addEventListener('input', function(e) {
-            let val = e.target.value.toUpperCase().trim();
+        // Nhận giờ chuẩn từ máy chủ Firebase; khi có (hoặc thay đổi) thì cập nhật ngày mặc định và làm mới giao diện
+        let defaultTodayStr = today;
+        database.ref('.info/serverTimeOffset').on('value', (snap) => {
+            const off = Number(snap.val());
+            if (snap.val() === null || snap.val() === undefined || !isFinite(off)) return;
+            serverOffsetMs = off;
+            timeSynced = true;
+
+            const newToday = getNow().toLocaleDateString('en-CA');
+            const flightDateEl = document.getElementById('flight-date');
+            const filterDateEl = document.getElementById('filter-date');
+            // Chỉ đổi những ô vẫn đang ở giá trị mặc định (người dùng chưa tự chọn)
+            if (!editingId && flightDateEl.value === defaultTodayStr) flightDateEl.value = newToday;
+            if (filterDateEl.value === defaultTodayStr) filterDateEl.value = newToday;
+            defaultTodayStr = newToday;
+
+            updateTimeSyncUI();
+            updateClock();
+            renderNotes();
+            renderPersonalNotes();
+        });
+        updateTimeSyncUI();
+
+        // Các mục "Cần take care" theo loại chuyến bay: [giá trị lưu, nhãn hiển thị]
+        const TAKE_CARE_OPTIONS = {
+            dep: [
+                ["Checkin trước", "Checkin trước"], ["UPJ", "UPJ"], ["UPW", "UPW"],
+                ["Miễn tháo giày", "Miễn tháo giày"], ["Goshow", "Goshow"],
+                ["Take care IMMI/ANSC", "IMMI/ANSC"], ["EXB", "EXB"], ["Khác", "Khác"]
+            ],
+            arr: [
+                ["Phục vụ khách sạn", "Phục vụ khách sạn"], ["Phục vụ lounge", "Phục vụ lounge"],
+                ["Nối chuyến", "Nối chuyến"], ["Đón hành lý", "Đón hành lý"], ["Khác", "Khác"]
+            ]
+        };
+        // "Khác" lưu dạng "Khác" (không nội dung) hoặc "Khác: <nội dung tự do>"
+        function isOtherValue(v) { return v === 'Khác' || String(v).startsWith('Khác: '); }
+        function collectTakeCareOptions() {
+            const otherEl = document.getElementById('take-care-other-text');
+            const otherText = otherEl ? otherEl.value.trim() : '';
+            return Array.from(document.querySelectorAll('.take-care-option:checked')).map(cb =>
+                (cb.value === 'Khác' && otherText) ? 'Khác: ' + otherText : cb.value);
+        }
+        function applyTakeCareOptions(options) {
+            const otherEl = document.getElementById('take-care-other-text');
+            if (otherEl) otherEl.value = '';
+            document.querySelectorAll('.take-care-option').forEach(cb => {
+                cb.checked = false;
+                if (cb.value === 'Khác') {
+                    const found = options.find(isOtherValue);
+                    if (found) {
+                        cb.checked = true;
+                        if (otherEl && found.startsWith('Khác: ')) otherEl.value = found.substring(6);
+                    }
+                } else if (options.includes(cb.value)) {
+                    cb.checked = true;
+                }
+            });
+        }
+        // Dựng lại các hộp chọn theo loại chuyến bay đang chọn.
+        // - Giữ lại các mục đang tick nếu mục đó vẫn còn trong danh sách mới (ví dụ "Khác").
+        // - extraValues: các mục đã lưu từ trước nhưng không thuộc danh sách chuẩn của loại này
+        //   (ví dụ briefing chuyến đến cũ có "UPJ") được hiển thị thêm để không bị mất khi sửa.
+        function renderTakeCareOptions(extraValues) {
+            const grid = document.getElementById('take-care-grid');
+            const dir = isArrivalSelected() ? 'arr' : 'dep';
+            const extras = extraValues || [];
+            if (grid.dataset.dir === dir && extras.length === 0) return;
+
+            const checked = new Set(Array.from(grid.querySelectorAll('.take-care-option:checked')).map(cb => cb.value));
+            const oldOther = document.getElementById('take-care-other-text');
+            const otherText = oldOther ? oldOther.value : '';
+            const list = TAKE_CARE_OPTIONS[dir].slice();
+            // "Khác: ..." (có nội dung tự do) được xử lý bởi ô nhập "Khác", không tạo thêm hộp riêng
+            extras.forEach(v => { if (!isOtherValue(v) && !list.some(x => x[0] === v)) list.push([v, v]); });
+
+            grid.innerHTML = '';
+            list.forEach(([value, label]) => {
+                const lab = document.createElement('label');
+                lab.className = 'checkbox-label';
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.className = 'take-care-option';
+                cb.value = value;
+                cb.checked = checked.has(value);
+                lab.appendChild(cb);
+                lab.appendChild(document.createTextNode(' ' + label));
+                if (value === 'Khác') {
+                    // Hộp "Khác" + ô nhập nội dung tự do nằm cùng một hàng
+                    const wrap = document.createElement('div');
+                    wrap.className = 'take-care-other';
+                    const txt = document.createElement('input');
+                    txt.type = 'text';
+                    txt.id = 'take-care-other-text';
+                    txt.placeholder = 'Nhập nội dung khác...';
+                    txt.value = otherText;
+                    txt.addEventListener('input', () => { if (txt.value.trim()) cb.checked = true; });
+                    wrap.appendChild(lab);
+                    wrap.appendChild(txt);
+                    grid.appendChild(wrap);
+                } else {
+                    grid.appendChild(lab);
+                }
+            });
+            grid.dataset.dir = dir;
+        }
+
+        function normalizedFlightNo() {
+            let val = document.getElementById('flight-number').value.toUpperCase().trim();
             if (/^\d+$/.test(val)) val = 'VN' + val;
-            if (flightData[val]) {
-                const [h, m] = flightData[val].split(':');
+            return val;
+        }
+        function isArrivalSelected() {
+            return document.getElementById('flight-direction').value === 'arr';
+        }
+        // Đổi nhãn giờ (ETD/ETA) và dòng gợi ý chặng bay theo loại chuyến bay đang chọn
+        function updateDirectionUI() {
+            const isArr = isArrivalSelected();
+            document.getElementById('time-label').innerText = isArr ? 'Giờ đến (ETA):' : 'Giờ bay (ETD):';
+            renderTakeCareOptions();
+            const hint = document.getElementById('flight-hint');
+            const list = isArr ? arrivalData[normalizedFlightNo()] : null;
+            if (list) {
+                let text = 'Chặng bay: ' + list[0][1];
+                if (list.length > 1) text += ' · Giờ đến khác: ' + list.slice(1).map(x => x[0]).join(', ');
+                hint.innerText = text;
+            } else {
+                hint.innerText = '';
+            }
+        }
+        function fillTimeFromTable() {
+            const val = normalizedFlightNo();
+            let time = null;
+            if (isArrivalSelected()) { if (arrivalData[val]) time = arrivalData[val][0][0]; }
+            else if (flightData[val]) { time = flightData[val]; }
+            if (time) {
+                const [h, m] = time.split(':');
                 document.getElementById('flight-time-hour').value = h;
                 document.getElementById('flight-time-minute').value = m;
             }
+            updateDirectionUI();
+        }
+        document.getElementById('flight-number').addEventListener('input', function(e) {
+            const val = normalizedFlightNo();
+            // SHCB chỉ có ở một bảng thì tự chọn đúng loại chuyến; có ở cả hai thì giữ lựa chọn hiện tại
+            const inDep = !!flightData[val], inArr = !!arrivalData[val];
+            if (inArr && !inDep) document.getElementById('flight-direction').value = 'arr';
+            else if (inDep && !inArr) document.getElementById('flight-direction').value = 'dep';
+            fillTimeFromTable();
         });
+        document.getElementById('flight-direction').addEventListener('change', fillTimeFromTable);
+        renderTakeCareOptions();
 
         function resetForm() {
             editingId = null;
             document.getElementById('flight-number').value = '';
+            document.getElementById('flight-direction').value = 'dep';
+            updateDirectionUI();
+            const otherTextEl = document.getElementById('take-care-other-text');
+            if (otherTextEl) otherTextEl.value = '';
             document.getElementById('flight-time-hour').value = '00';
             document.getElementById('flight-time-minute').value = '00';
             document.getElementById('note-content').value = '';
             document.querySelectorAll('.take-care-option').forEach(cb => cb.checked = false);
             
-            const currentToday = new Date().toLocaleDateString('en-CA');
+            const currentToday = getNow().toLocaleDateString('en-CA');
             document.getElementById('flight-date').value = currentToday;
             
             const btnMain = document.getElementById('main-submit-btn');
@@ -793,19 +1113,17 @@
 
             editingId = id;
             document.getElementById('flight-number').value = note.flightNo;
+            document.getElementById('flight-direction').value = note.direction === 'arr' ? 'arr' : 'dep';
+            updateDirectionUI();
+            document.getElementById('take-care-grid').dataset.dir = '';   // buộc dựng lại
+            renderTakeCareOptions(note.options || []);
             const [h, m] = note.time.split(':');
             document.getElementById('flight-time-hour').value = h;
             document.getElementById('flight-time-minute').value = m;
             document.getElementById('flight-date').value = note.date;
             document.getElementById('note-content').value = note.content;
 
-            const checkboxes = document.querySelectorAll('.take-care-option');
-            checkboxes.forEach(cb => cb.checked = false);
-            if (note.options) {
-                checkboxes.forEach(cb => {
-                    if (note.options.includes(cb.value)) cb.checked = true;
-                });
-            }
+            applyTakeCareOptions(note.options || []);
 
             const btnMain = document.getElementById('main-submit-btn');
             btnMain.innerText = "Cập nhật Briefing";
@@ -823,10 +1141,15 @@
             const m = document.getElementById('flight-time-minute').value;
             const time = `${h}:${m}`;
             const date = document.getElementById('flight-date').value;
+            const direction = isArrivalSelected() ? 'arr' : 'dep';
+            let routing = '';
+            if (direction === 'arr' && arrivalData[flightNo]) {
+                const match = arrivalData[flightNo].find(x => x[0] === time) || arrivalData[flightNo][0];
+                routing = match[1];
+            }
             const content = document.getElementById('note-content').value.trim();
             
-            const checkboxes = document.querySelectorAll('.take-care-option:checked');
-            const options = Array.from(checkboxes).map(cb => cb.value);
+            const options = collectTakeCareOptions();
 
             if (!flightNo || !date || !content) { 
                 alert("Vui lòng nhập đầy đủ SHCB, Ngày bay và Nội dung briefing!"); 
@@ -837,7 +1160,7 @@
                 return;
             }
 
-            const now = new Date();
+            const now = getNow();
             const etdDateTime = new Date(`${date}T${time}:00`);
             
             if (!editingId && etdDateTime < now) {
@@ -845,7 +1168,7 @@
                 return;
             }
 
-            let autoContent = `✈️ Briefing: ${flightNo} (ETD: ${time})\n📝 ${content}`;
+            let autoContent = `${direction === 'arr' ? '🛬' : '✈️'} Briefing: ${flightNo} (${direction === 'arr' ? 'ETA' : 'ETD'}: ${time})${routing ? ' · ' + routing : ''}\n📝 ${content}`;
             if (options.length > 0) {
                 autoContent += `\n📌 Take care: ${options.join(' | ')}`;
             }
@@ -853,7 +1176,7 @@
             const dateStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
 
             if (editingId) {
-                dbRef.child(editingId).update({ flightNo, time, date, content, options });
+                dbRef.child(editingId).update({ flightNo, time, date, content, options, direction, routing });
 
                 const pNoteId = "auto_" + editingId;
                 personalDbRef.child(pNoteId).update({ 
@@ -863,20 +1186,21 @@
                 });
 
             } else {
-                const id = Date.now().toString();
-                const newNote = { id, flightNo, time, date, content, options, subNote: "", isDone: false };
+                const id = trueNowMs().toString();
+                const newNote = { id, flightNo, time, date, content, options, subNote: "", isDone: false, createdAt: Number(id), direction, routing };
                 dbRef.child(id).set(newNote);
 
                 const pNoteId = "auto_" + id; 
                 personalDbRef.child(pNoteId).set({
                     id: pNoteId,
                     content: autoContent,
-                    dateStr: dateStr
+                    dateStr: dateStr,
+                    createdAt: Number(id)
                 });
             }
             
             resetForm();
-            const currentToday = new Date().toLocaleDateString('en-CA');
+            const currentToday = getNow().toLocaleDateString('en-CA');
             document.getElementById('filter-date').value = currentToday;
             renderNotes();
         }
@@ -907,24 +1231,26 @@
                 noteEl.className = `note-item ${note.isDone ? 'done' : ''}`;
                 noteEl.id = `note-${note.id}`;
                 noteEl.dataset.time = note.time;
+                noteEl.dataset.direction = note.direction === 'arr' ? 'arr' : 'dep';
                 noteEl.dataset.options = JSON.stringify(note.options || []);
 
                 const opts = note.options || [];
 
                 noteEl.innerHTML = `
                     <div class="note-header">
-                        <span><span class="warning-icon">🚨</span>✈️ ${escapeHtml(note.flightNo)} (ETD: ${escapeHtml(note.time)})</span>
+                        <span><span class="warning-icon">🚨</span>${note.direction === 'arr' ? '🛬' : '✈️'} ${escapeHtml(note.flightNo)} (${note.direction === 'arr' ? 'ETA' : 'ETD'}: ${escapeHtml(note.time)})${note.direction === 'arr' && note.routing ? ' · ' + escapeHtml(note.routing) : ''}</span>
                     </div>
+                    ${getCreatedAt(note) ? `<div class="note-created">🕒 Khởi tạo: ${formatTime(getCreatedAt(note))} ${formatDate(getCreatedAt(note))}</div>` : ''}
                     ${opts.length > 0 ? `<div class="note-options">[ ${escapeHtml(opts.join(' | '))} ]</div>` : ''}
                     ${note.content ? `<div class="note-content">${escapeHtml(note.content)}</div>` : ''}
-                    ${note.subNote ? `<div class="sub-note">📌 ${escapeHtml(note.subNote)}</div>` : ''}
+                    ${getSubNotes(note).map(sn => `<div class="sub-note"><span class="sub-note-text">📌 ${escapeHtml(sn.text)}</span><span class="sub-note-meta">${sn.createdAt ? `<span class="sub-note-time">${formatTime(sn.createdAt)}</span>` : ''}<button type="button" class="sub-note-btn" title="Sửa" onclick="editSubNote('${safeId(note.id)}','${safeId(sn.key)}')">✎</button><button type="button" class="sub-note-btn" title="Xoá" onclick="deleteSubNote('${safeId(note.id)}','${safeId(sn.key)}')">✕</button></span></div>`).join('')}
                     <div class="note-actions">
                         ${note.isDone 
                             ? `<button class="btn-small btn-restore" onclick="toggleStatus('${safeId(note.id)}')">Khôi phục</button>` 
                             : `<button class="btn-small btn-done" onclick="toggleStatus('${safeId(note.id)}')">Xong</button>`
                         }
                         <button class="btn-small btn-edit" onclick="editBriefing('${safeId(note.id)}')">Sửa</button>
-                        <button class="btn-small btn-note-edit" onclick="editBriefingNote('${safeId(note.id)}')">Note</button>
+                        <button class="btn-small btn-note-edit" onclick="addBriefingSubNote('${safeId(note.id)}')">Note</button>
                         <button class="btn-small btn-delete" onclick="deleteNote('${safeId(note.id)}')">Xoá</button>
                     </div>
                 `;
@@ -945,17 +1271,47 @@
             }
         }
 
-        function editBriefingNote(id) {
-            const note = notes.find(n => n.id === id);
-            if (note) {
-                const newSubNote = prompt("Nhập nội dung ghi chú phụ:", note.subNote || "");
-                if (newSubNote !== null) dbRef.child(id).update({ subNote: newSubNote.trim() });
+        // Ghi chú phụ: mỗi lần bấm "Note" là THÊM một ghi chú mới (lưu thành mục riêng, không ghi đè ghi chú cũ).
+        // Ghi chú cũ lưu ở trường subNote (chuỗi) vẫn được hiển thị như ghi chú đầu tiên.
+        function getSubNotes(note) {
+            const list = [];
+            if (note.subNote) list.push({ key: 'legacy', text: note.subNote, createdAt: 0 });
+            if (note.subNotes && typeof note.subNotes === 'object') {
+                Object.keys(note.subNotes).forEach(k => {
+                    const v = note.subNotes[k];
+                    if (v && v.text) list.push({ key: k, text: v.text, createdAt: Number(v.createdAt) || 0 });
+                });
             }
+            return list.sort((a, b) => a.key === 'legacy' ? -1 : (b.key === 'legacy' ? 1 : a.createdAt - b.createdAt));
+        }
+        function addBriefingSubNote(id) {
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+            const text = prompt("Thêm ghi chú phụ mới (các ghi chú trước đó được giữ nguyên):", "");
+            if (text === null || !text.trim()) return;
+            dbRef.child(id + '/subNotes').push({ text: text.trim(), createdAt: trueNowMs() });
+        }
+        function editSubNote(id, key) {
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+            const sn = getSubNotes(note).find(x => x.key === key);
+            if (!sn) return;
+            const text = prompt("Sửa ghi chú phụ (để trống để xoá):", sn.text);
+            if (text === null) return;
+            const t = text.trim();
+            if (key === 'legacy') dbRef.child(id).update({ subNote: t });
+            else if (t) dbRef.child(id + '/subNotes/' + key).update({ text: t });
+            else dbRef.child(id + '/subNotes/' + key).remove();
+        }
+        function deleteSubNote(id, key) {
+            if (!confirm("Xoá ghi chú phụ này?")) return;
+            if (key === 'legacy') dbRef.child(id).update({ subNote: '' });
+            else dbRef.child(id + '/subNotes/' + key).remove();
         }
 
         function checkHighlights() {
             const filterDate = document.getElementById('filter-date').value;
-            const now = new Date();
+            const now = getNow();
             
             const currentH = String(now.getHours()).padStart(2, '0');
             const currentM = String(now.getMinutes()).padStart(2, '0');
@@ -980,7 +1336,10 @@
                 const diff = etdShiftMins - currentShiftMins;
 
                 let highlightThreshold = 0;
-                if (options.includes("UPW") || options.includes("Miễn tháo giày")) {
+                if (item.dataset.direction === 'arr') {
+                    // Chuyến bay đến: luôn cảnh báo trước ETA 30 phút, bất kể mục take care
+                    highlightThreshold = 30;
+                } else if (options.includes("UPW") || options.includes("Miễn tháo giày")) {
                     highlightThreshold = 120;
                 } else if (options.includes("Goshow") || options.includes("UPJ")) {
                     highlightThreshold = 60;
